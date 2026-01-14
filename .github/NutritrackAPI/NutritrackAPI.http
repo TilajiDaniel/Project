@@ -1,6 +1,0 @@
-@NutritrackAPI_HostAddress = http://localhost:5271
-
-GET {{NutritrackAPI_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
