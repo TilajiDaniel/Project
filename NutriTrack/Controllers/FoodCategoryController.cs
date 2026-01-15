@@ -6,7 +6,7 @@ using NutriTrack.Models;
 
 namespace NutriTrack.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class FoodCategoryController : ControllerBase
     {
