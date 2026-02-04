@@ -23,6 +23,8 @@ public partial class TesztContext : DbContext
 
     public virtual DbSet<MealFoodItem> MealFoodItems { get; set; }
 
+    public virtual DbSet<Privilege> Privileges { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<UserSetting> UserSettings { get; set; }
@@ -33,8 +35,10 @@ public partial class TesztContext : DbContext
 
     public virtual DbSet<WeightLog> WeightLogs { get; set; }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseMySQL("SERVER=localhost;PORT=3306;DATABASE=teszt;USER=root;PASSWORD=;");
 
-    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<FoodCategory>(entity =>
@@ -161,6 +165,25 @@ public partial class TesztContext : DbContext
                 .HasConstraintName("meal_food_items_ibfk_1");
         });
 
+        modelBuilder.Entity<Privilege>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("privilege");
+
+            entity.HasIndex(e => e.Level, "Level").IsUnique();
+
+            entity.Property(e => e.Id).HasColumnType("int(11)");
+            entity.Property(e => e.Level)
+                .IsRequired()
+                .HasDefaultValueSql("'NULL'")
+                .HasColumnType("int(11)");
+            entity.Property(e => e.Privilege1)
+                .HasMaxLength(16)
+                .HasDefaultValueSql("'NULL'")
+                .HasColumnName("Privilege");
+        });
+
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.UserId).HasName("PRIMARY");
@@ -168,6 +191,8 @@ public partial class TesztContext : DbContext
             entity.ToTable("users");
 
             entity.HasIndex(e => e.Email, "email").IsUnique();
+
+            entity.HasIndex(e => e.Privilege, "fk_privilege_level");
 
             entity.HasIndex(e => e.Username, "username").IsUnique();
 
@@ -188,6 +213,10 @@ public partial class TesztContext : DbContext
             entity.Property(e => e.PasswordHash)
                 .HasMaxLength(255)
                 .HasColumnName("password_hash");
+            entity.Property(e => e.Privilege)
+                .HasDefaultValueSql("'NULL'")
+                .HasColumnType("int(11)")
+                .HasColumnName("privilege");
             entity.Property(e => e.Username)
                 .HasMaxLength(32)
                 .HasColumnName("username");
@@ -195,6 +224,12 @@ public partial class TesztContext : DbContext
                 .HasPrecision(5)
                 .HasDefaultValueSql("'NULL'")
                 .HasColumnName("weight_kg");
+
+            entity.HasOne(d => d.PrivilegeNavigation).WithMany(p => p.Users)
+                .HasPrincipalKey(p => p.Level)
+                .HasForeignKey(d => d.Privilege)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("fk_privilege_level");
         });
 
         modelBuilder.Entity<UserSetting>(entity =>
