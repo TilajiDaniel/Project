@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../index.css'; // styles.css → Main.css néven
+import '../styles/index.css'; 
 
 const Main = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);

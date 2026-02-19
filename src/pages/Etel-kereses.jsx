@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../index.css';
+import '../styles/Etel-kereso.css';
 
 const EtelKereses = () => {
   const [searchTerm, setSearchTerm] = useState('');
