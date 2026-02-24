@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Layout from '../components/Layout';
 import '../styles/index.css'; 
 
 const Main = () => {
@@ -23,14 +24,9 @@ const Main = () => {
 
 
   return (
+    <Layout>
+      <div className="page-content">
     <div className="container">
-      <nav className="sidebar">
-        <a href="/MainPage" className="sidebar-item active">🏠 Menü</a>
-        <a href="/naplo" className="sidebar-item">📅 Napló</a>
-        <a href="/etel-keres" className="sidebar-item">🔍 Étel kereső</a>
-        <a href="/statisztika" className="sidebar-item">📊 Statisztika</a>
-        <a href="/kalorie-kalkulator" className="sidebar-item">⚖️ Kalória kalkulátor</a>
-      </nav>
       
       <div className="main-content">
         <div className="title">
@@ -60,6 +56,8 @@ const Main = () => {
 
       
     </div>
+    </div>
+    </Layout>
   );
 };
 

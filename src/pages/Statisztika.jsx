@@ -1,18 +1,12 @@
 import React, { useState } from 'react';
-import '../styles/Statisztika.css'; // feltételezve, hogy CSS-t külön fájlba teszed
+import Layout from '../components/Layout';
+import '../styles/Statisztika.css'; 
 
 const Statisztika = () => {
 
   return (
+    <Layout>
     <div className="container">
-      {/* Sidebar */}
-      <nav className="sidebar">
-        <a href="/MainPage" className="sidebar-item">🏠 Menü</a>
-        <a href="/naplo" className="sidebar-item">📅 Napló</a>
-        <a href="/etel-keres" className="sidebar-item">🔍 Étel kereső</a>
-        <a href="/statisztika" className="sidebar-item active">📊 Statisztika</a>
-        <a href="/kalorie-kalkulator" className="sidebar-item">⚖️ Kalória kalkulátor</a>
-      </nav>
 
       <div className="main-content">
         <div className="title">
@@ -32,6 +26,7 @@ const Statisztika = () => {
 
       
     </div>
+    </Layout>
   );
 };
 

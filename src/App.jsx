@@ -1,24 +1,85 @@
-import { Routes, Route, NavLink } from "react-router-dom"
+import { Routes, Route, NavLink, Navigate } from "react-router-dom"
 import { EtelKereses } from "./pages/Etel-kereses"
 import { Main } from "./pages/MainPage"
 import { Statisztika } from "./pages/Statisztika"
 import { Naplo } from "./pages/naplo"
 import { Kalorie} from "./pages/Kalorie-kalkulator"
-import './styles/App.css';
+import { AuthProvider, useAuth } from './contexts/AuthContext'
+import Login from './components/Login'
+import Register from './components/Register'
+import { About } from "./pages/About"
+
+
+function ProtectedRoute({ children }) {
+  const { token, loading } = useAuth()
+  
+  if (loading) return <div>Betöltés...</div>
+  return token ? children : <Navigate to="/login" />
+}
+
+function AppContent() {
+  return (
+    <div className="App">
+      
+      <Routes>
+        {/* Nyilvános oldalak */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/about" element={<About />} />
+        {/* Védett oldalak */}
+        <Route 
+          path="/MainPage" 
+          element={
+            <ProtectedRoute>
+              <Main />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/etel-kereses" 
+          element={
+            <ProtectedRoute>
+              <EtelKereses />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/statisztika" 
+          element={
+            <ProtectedRoute>
+              <Statisztika />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/naplo" 
+          element={
+            <ProtectedRoute>
+              <Naplo />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/kalorie-kalkulator" 
+          element={
+            <ProtectedRoute>
+              <Kalorie />
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="*" element={<h2>404 - Nincs ilyen oldal!</h2>} />
+      </Routes>
+    </div>
+  )
+}
 
 export const App = () => {
-
   return (
-    <>
-        <Routes>
-          <Route path="/MainPage" element={<Main />} />
-          <Route path="/etel-keres" element={<EtelKereses />} />
-          <Route path="/statisztika" element={<Statisztika />} />
-          <Route path="/naplo" element={<Naplo />} />
-          <Route path="/kalorie-kalkulator" element={<Kalorie />} />
-          <Route path="*" element={<h2>404 - Nincs ilyen oldal!</h2>} />
-        </Routes>
-    </>
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   )
 }
 

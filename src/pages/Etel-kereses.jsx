@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Layout from '../components/Layout';
 import '../styles/Etel-kereso.css';
 
 const EtelKereses = () => {
@@ -114,14 +115,8 @@ const EtelKereses = () => {
   };
 
   return (
+    <Layout>
     <div className="container">
-      <nav className="sidebar">
-        <a href="/MainPage" className="sidebar-item">🏠 Menü</a>
-        <a href="/naplo" className="sidebar-item">📅 Napló</a>
-        <a href="/etel-keres" className="sidebar-item active">🔍 Étel kereső</a>
-        <a href="/statisztika" className="sidebar-item">📊 Statisztika</a>
-        <a href="/kalorie-kalkulator" className="sidebar-item">⚖️ Kalória kalkulátor</a>
-      </nav>
       
       <div className="main-content">
         <div className="title">Étel keresése</div>
@@ -161,6 +156,7 @@ const EtelKereses = () => {
         </div>
       </div>
     </div>
+    </Layout>
   );
 };
 
