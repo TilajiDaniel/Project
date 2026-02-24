@@ -2,250 +2,166 @@ import React, { useState, useEffect } from 'react';
 import '../styles/Etel-kereso.css';
 
 const EtelKereses = () => {
+  const [allFoods, setAllFoods] = useState([]);
+  const [filteredFoods, setFilteredFoods] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoginForm, setIsLoginForm] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
-  const [foods, setFoods] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [loading, setLoading] = useState(true);
 
-  // Mint ételek
-  const sampleFoods = [
-    { name: 'Csirke melle', calories: 165, protein: 31, carbs: 0, fat: 3.6 },
-    { name: 'Barna rizs (100g)', calories: 111, protein: 2.6, carbs: 23, fat: 0.9 },
-    { name: 'Avokádó (100g)', calories: 160, protein: 2, carbs: 9, fat: 15 },
-    { name: 'Tojás (1 db)', calories: 70, protein: 6, carbs: 0.5, fat: 5 },
-    { name: 'Brokkoli (100g)', calories: 34, protein: 2.8, carbs: 7, fat: 0.4 }
-  ];
+  // 🌍 Kategóriák
+  const categoryNames = {
+    1: 'Levesek', 2: 'Főtt ételek', 3: 'Gyorsétterem',
+    4: 'Péksütemény', 5: 'Hús', 6: 'Zöldség',
+    7: 'Gyümölcs', 8: 'Tejtermék', 9: 'Ital',
+    10: 'Nassolnivaló', 11: 'Édesség'
+  };
 
-  // Kategóriák
-  const sampleCategories = [
-    'Reggeli', 'Ebéd', 'Vacsora', 'Nasi', 'Zöldség', 'Hús', 'Gabona'
-  ];
-
-  // LocalStorage ellenőrzés
+  // 🚀 Ételek betöltése
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-      setIsLoggedIn(true);
-    }
+    loadFoods();
   }, []);
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
-
-  const showRegister = () => setIsLoginForm(false);
-  const showLogin = () => setIsLoginForm(true);
-
-  const login = (e) => {
-    e.preventDefault();
-    const email = e.target.loginEmail.value;
-    const password = e.target.loginPassword.value;
-    const userData = { name: 'Kovács János', email };
-    setUser(userData);
-    setIsLoggedIn(true);
-    setIsModalOpen(false);
-    localStorage.setItem('user', JSON.stringify(userData));
+  const loadFoods = async () => {
+    try {
+      setLoading(true);
+      console.log('📡 API hívás...');
+      const response = await fetch('https://localhost:7133/api/FoodItem/GetFoodItems');
+      const data = await response.json();
+      
+      console.log('✅ Ételek:', data);
+      console.log('📋 Első étel struktúra:', data[0]); // DEBUG
+      setAllFoods(data || []);
+      setFilteredFoods(data || []);
+    } catch (error) {
+      console.error('❌ API HIBA:', error);
+      setFilteredFoods([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const register = (e) => {
-    e.preventDefault();
-    const username = e.target.regUsername.value;
-    const email = e.target.regEmail.value;
-    const password = e.target.regPassword.value;
-    const confirmPassword = e.target.regConfirmPassword.value;
+  // 🧠 AUTOMATIKUS SZŰRÉS - ez kezeli MINDEN szűrést!
+  useEffect(() => {
+    console.log('🔄 Szűrés:', { activeCategory, searchTerm, allFoodsLength: allFoods.length });
     
-    if (password !== confirmPassword) {
-      alert('A jelszavak nem egyeznek!');
-      return;
+    let filtered = allFoods;
+    
+    // 🎯 Kategória szűrés
+    if (activeCategory !== 'all') {
+      const categoryId = Object.entries(categoryNames)
+        .find(([id, name]) => name === activeCategory)?.[0];
+      
+      console.log('🔍 Kategória ID:', categoryId); // DEBUG
+      
+      if (categoryId) {
+        filtered = filtered.filter(food => {
+          const foodCatId = food.category?.categoryId;
+          const match = parseInt(foodCatId) === parseInt(categoryId);
+          console.log('🍲 Ételenkénti egyezés:', food.name, foodCatId, '==', categoryId, match); // DEBUG
+          return match;
+        });
+      }
     }
     
-    const userData = { name: username, email };
-    setUser(userData);
-    setIsLoggedIn(true);
-    setIsModalOpen(false);
-    localStorage.setItem('user', JSON.stringify(userData));
+    // 🔍 Szöveges keresés
+    if (searchTerm.trim()) {
+      filtered = filtered.filter(food => 
+        food.name?.toLowerCase().includes(searchTerm.toLowerCase().trim())
+      );
+    }
+    
+    console.log('✅ Szűrés eredménye:', filtered.length, 'étel'); // DEBUG
+    setFilteredFoods(filtered);
+  }, [allFoods, activeCategory, searchTerm]);
+
+  // 📱 Egyszerűsített kategória kattintás
+  const filterByCategory = (categoryName) => {
+    console.log('🖱️ Kategória kattintás:', categoryName);
+    setActiveCategory(categoryName === 'Összes' ? 'all' : categoryName);
   };
 
-  const logout = () => {
-    setIsLoggedIn(false);
-    setUser(null);
-    localStorage.removeItem('user');
-  };
-
-  const searchFood = (term) => {
+  // 🔍 Egyszerűsített keresés
+  const handleSearch = (term) => {
+    console.log('🔍 Keresés:', term);
     setSearchTerm(term);
-    const filtered = sampleFoods.filter(food => 
-      food.name.toLowerCase().includes(term.toLowerCase())
-    );
-    setFoods(filtered);
   };
 
-  const renderCategoryCards = () => (
-    <div className="category-grid">
-      {sampleCategories.map((category, index) => (
-        <div key={index} className="category-card" onClick={() => searchFood(category)}>
-          {category}
-        </div>
-      ))}
-    </div>
-  );
+  // 📱 Kategória kártyák
+  const categories = ['Összes', ...Object.entries(categoryNames).map(([id, name]) => name)];
 
-  const renderFoodCards = () => (
-    <div className="food-grid">
-      {foods.length > 0 ? (
-        foods.map((food, index) => (
-          <div key={index} className="food-card">
-            <h4>{food.name}</h4>
-            <div className="nutrition-info">
-              <span>🔥 {food.calories} kcal</span>
-              <span>💪 {food.protein}g fehérje</span>
-              <span>🍠 {food.carbs}g szénhidrát</span>
-              <span>🥑 {food.fat}g zsír</span>
-            </div>
-            <button className="btn btn-primary">➕ Hozzáadás</button>
-          </div>
-        ))
-      ) : (
-        <p className="no-results">Nincs találat "{searchTerm}" kifejezésre</p>
-      )}
-    </div>
-  );
+  // 🖼️ Étel kártyák renderelése
+  const renderFoodCards = () => {
+    if (loading) {
+      return <div style={{textAlign: 'center', color: '#666', gridColumn: '1/-1'}}>⏳ Betöltés...</div>;
+    }
+
+    if (filteredFoods.length === 0) {
+      return <div style={{textAlign: 'center', color: '#666', gridColumn: '1/-1'}}>🔍 Nincs találat</div>;
+    }
+
+    return filteredFoods.map((food, index) => (
+      <div key={food.id || food.foodItemId || index} className="food-card">
+        <h3>{food.name || 'Nincs név'}</h3>
+        <div className="nutrients">
+          <span>🔥 Kalória: {food.caloriesPer100g || 0} kcal</span>
+          <span>💪 Protein: {food.proteinPer100g || 0}g</span>
+          <span>🍞 Szénhidrát: {food.carbsPer100g || 0}g</span>
+          <span>🧈 Zsír: {food.fatPer100g || 0}g</span>
+        </div>
+        <small>Kategória: {food.category?.categoryName || food.category?.CategoryName || 'Egyéb'}</small>
+      </div>
+    ));
+  };
 
   return (
     <div className="container">
       <nav className="sidebar">
-        <a href="/" className="sidebar-item">🏠 Menü</a>
+        <a href="/MainPage" className="sidebar-item">🏠 Menü</a>
         <a href="/naplo" className="sidebar-item">📅 Napló</a>
         <a href="/etel-keres" className="sidebar-item active">🔍 Étel kereső</a>
         <a href="/statisztika" className="sidebar-item">📊 Statisztika</a>
+        <a href="/kalorie-kalkulator" className="sidebar-item">⚖️ Kalória kalkulátor</a>
       </nav>
       
       <div className="main-content">
-        <div className="title">
-          Étel keresése
-          <div className="right-panel" onClick={openModal}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '28px', marginBottom: '8px' }}>
-                {isLoggedIn ? '👋' : '👤'}
-              </div>
-              <div style={{ fontSize: '16px', fontWeight: '700' }}>
-                {isLoggedIn ? `Üdv, ${user?.name}!` : 'Bejelentkezés'}
-              </div>
-            </div>
-          </div>
-        </div>
-
+        <div className="title">Étel keresése</div>
+        
         {/* KERESŐ SÁV */}
         <div className="search-bar">
-          <input
-            type="text"
-            placeholder="Étel keresése..."
+          <input 
+            type="text" 
+            placeholder="Étel keresése..." 
             value={searchTerm}
-            onChange={(e) => searchFood(e.target.value)}
+            onChange={(e) => handleSearch(e.target.value)}
           />
-          <button onClick={() => searchFood(searchTerm)}>🔍</button>
-          <div className="category-cards">
-            {renderCategoryCards()}
+          <div className="category-cards" id="categoryCards">
+            {categories.map(cat => {
+              const catKey = cat === 'Összes' ? 'all' : cat;
+              return (
+                <div 
+                  key={cat}
+                  className={`category-card ${activeCategory === catKey ? 'active' : ''}`}
+                  onClick={() => filterByCategory(cat)}
+                  style={{cursor: 'pointer'}}
+                >
+                  {cat}
+                </div>
+              );
+            })}
           </div>
         </div>
 
         {/* EREDMÉNYEK */}
         <div className="results-wrapper">
           <div className="results-panel">
-            <div id="foodCards">
+            <div className="food-grid" id="foodCards">
               {renderFoodCards()}
             </div>
           </div>
         </div>
       </div>
-
-      {/* MODAL - ugyanaz mint Main.jsx-ben */}
-      {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <button className="close-modal" onClick={closeModal}>×</button>
-            
-            <div className="modal-header">
-              <div style={{ fontSize: '48px', marginBottom: '15px' }}>
-                {isLoggedIn ? '👋' : '🔐'}
-              </div>
-              <h2 className="modal-title">
-                {isLoggedIn ? 'Profil' : 'Bejelentkezés'}
-              </h2>
-            </div>
-
-            {!isLoggedIn ? (
-              <>
-                <div id="loginForm">
-                  <form onSubmit={login}>
-                    <div className="form-group">
-                      <label>Email</label>
-                      <input type="email" id="loginEmail" placeholder="pelda@email.hu" required />
-                    </div>
-                    <div className="form-group">
-                      <label>Jelszó</label>
-                      <input type="password" id="loginPassword" placeholder="Legalább 6 karakter" required />
-                    </div>
-                    <button type="submit" className="btn btn-primary">🔑 Bejelentkezés</button>
-                    <button type="button" className="btn btn-secondary" onClick={showRegister}>
-                      📝 Új fiók regisztrálása
-                    </button>
-                  </form>
-                </div>
-
-                {!isLoginForm && (
-                  <div id="registerForm">
-                    <form onSubmit={register}>
-                      <div className="form-group">
-                        <label>Felhasználónév</label>
-                        <input type="text" id="regUsername" placeholder="Pl: kovacs.janos" required />
-                      </div>
-                      <div className="form-group">
-                        <label>Email</label>
-                        <input type="email" id="regEmail" placeholder="pelda@email.hu" required />
-                      </div>
-                      <div className="form-group">
-                        <label>Jelszó</label>
-                        <input type="password" id="regPassword" placeholder="Legalább 6 karakter" required minLength="6" />
-                      </div>
-                      <div className="form-group">
-                        <label>Jelszó mégerősítése</label>
-                        <input type="password" id="regConfirmPassword" placeholder="Ismételd meg" required />
-                      </div>
-                      <button type="submit" className="btn btn-primary">✅ Regisztráció</button>
-                      <button type="button" className="btn btn-secondary" onClick={showLogin}>
-                        Vissza a bejelentkezéshez
-                      </button>
-                    </form>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '56px', marginBottom: '20px' }}>👋</div>
-                <h3 style={{ fontSize: '24px', marginBottom: '15px' }}>
-                  Üdvözöljük, <span>{user?.name}</span>!
-                </h3>
-                <p style={{ color: '#666', marginBottom: '25px' }}>
-                  <strong>Email:</strong> <span>{user?.email}</span>
-                </p>
-                <button
-                  onClick={logout}
-                  className="btn btn-secondary"
-                  style={{ background: 'linear-gradient(135deg, #ff6b6b, #ee5a52)', color: 'white' }}
-                >
-                  🚪 Kijelentkezés
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
-export {EtelKereses} ;
+export { EtelKereses };

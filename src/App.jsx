@@ -10,11 +10,8 @@ export const App = () => {
 
   return (
     <>
-   
-      <h1>Termékek - feladat</h1>
-      
         <Routes>
-          <Route path="/" element={<Main />} />
+          <Route path="/MainPage" element={<Main />} />
           <Route path="/etel-keres" element={<EtelKereses />} />
           <Route path="/statisztika" element={<Statisztika />} />
           <Route path="/naplo" element={<Naplo />} />

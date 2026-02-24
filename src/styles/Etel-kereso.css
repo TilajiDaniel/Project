@@ -1,0 +1,75 @@
+/* ===== ÉTEL KERESŐ OLDAL – ÚJ ELRENDEZÉS ===== */
+
+/* FELÜL LÉVŐ KERESŐ CSÍK */
+.search-bar input {
+    flex: 1;
+    height: 45px;
+    border-radius: 12px;
+    border: 2px solid #e1e5e9;
+    padding: 0 15px;
+    font-size: 16px;
+    outline: none;
+}
+
+.search-bar select {
+    height: 45px;
+    border-radius: 12px;
+    border: 2px solid #e1e5e9;
+    padding: 0 12px;
+    font-size: 15px;
+    margin-left: 15px;
+    background: rgba(255,255,255,0.9);
+    cursor: pointer;
+}
+
+.search-bar select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
+}
+
+
+.search-bar button {
+    margin-left: 15px;
+    height: 45px;
+    padding: 0 22px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    transition: all 0.3s;
+}
+
+.search-bar button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102,126,234,0.4);
+}
+
+.category-cards {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0;
+}
+.category-card {
+    padding: 8px 16px; border-radius: 20px; background: #f0f0f0;
+    cursor: pointer; transition: all 0.3s; border: 2px solid transparent;
+}
+.category-card:hover, .category-card.active {
+    background: #007bff; color: white; border-color: #0056b3;
+}
+
+.food-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px; padding: 20px 0;
+}
+.food-card {
+    background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 20px; transition: transform 0.2s;
+}
+.food-card:hover { transform: translateY(-4px); }
+.food-card h3 { margin: 0 0 12px; color: #333; }
+.nutrients {
+    display: flex; justify-content: space-between; font-size: 14px; color: #666; margin: 12px 0;
+}
+.food-card small { color: #999; }
