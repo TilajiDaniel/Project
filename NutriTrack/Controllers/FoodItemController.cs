@@ -23,7 +23,9 @@ namespace NutriTrack.Controllers
 
             try
             {
-                List<FoodItem> FoodItems = await _context.FoodItems.ToListAsync();
+                   List<FoodItem> FoodItems = await _context.FoodItems
+                    .Include(f => f.Category)  
+                    .ToListAsync();
 
                 return Ok(FoodItems);
 
