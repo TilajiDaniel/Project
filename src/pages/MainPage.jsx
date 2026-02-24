@@ -84,6 +84,7 @@ const Main = () => {
         <a href="/naplo" className="sidebar-item">📅 Napló</a>
         <a href="/etel-keres" className="sidebar-item">🔍 Étel kereső</a>
         <a href="/statisztika" className="sidebar-item">📊 Statisztika</a>
+        <a href="/kalorie-kalkulator" className="sidebar-item">⚖️ Kalória kalkulátor</a>
       </nav>
       
       <div className="main-content">
