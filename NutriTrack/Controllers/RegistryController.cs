@@ -1,115 +1,120 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using NutriTrack.Models;
 using NutriTrack.DTOs;
+using NutriTrack.Helpers;
+using NutriTrack.DTOs.NutriTrack.DTOs;
+
 namespace NutriTrack.Controllers
 {
-     [Route("api/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
-    public class RegistryController : Controller
+    public class RegistryController : ControllerBase
     {
+        private readonly TesztContext _context;
+        private readonly IConfiguration _configuration;
 
-        public readonly NutriTrack.Models.TesztContext _context;
-        public readonly NutriTrack.DTOs.RegistryDTO _reg;
-
-        public RegistryController(NutriTrack.Models.TesztContext context)
+        public RegistryController(TesztContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
-        [HttpPost("reg")]
-        public async Task<IActionResult> PostRegistry(RegistryDTO dto)
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegistryDTO dto)
         {
             try
             {
-                if (_context.Users.FirstOrDefault(d => d.Username == dto.Username) != null)
-                {
-                    return BadRequest("Felhasználónév már foglalt. ");
-                }
-                if (_context.Users.FirstOrDefault(d => d.Email == dto.Email) != null)
-                {
-                    return BadRequest("Ezzel az E-mail címmel már regisztráltak. ");
-                }
-                dto.PasswordHash = NutriTrack.Helpers.PasswordHasher.HashPassword(dto.PasswordHash);
+                // Duplikáció ellenőrzés
+                if (_context.Users.Any(u => u.Username == dto.Username))
+                    return BadRequest("Felhasználónév már foglalt.");
 
-                dto.Privilege = 1;
-                dto.CreatedAt = DateTime.Now;
+                if (_context.Users.Any(u => u.Email == dto.Email))
+                    return BadRequest("Email már regisztrálva.");
 
-                User ujUser = new User() { 
-                    UserId=-1,
+                // User létrehozása
+                User newUser = new User
+                {
                     Username = dto.Username,
                     Email = dto.Email,
-                    PasswordHash = dto.PasswordHash,
-                    CreatedAt = dto.CreatedAt
+                    PasswordHash = PasswordHasher.HashPassword(dto.Password), // ← Hashelés itt!
+                    Privilege = 1,
+                    CreatedAt = DateTime.Now
                 };
-                _context.Users.Add(ujUser); 
-                await _context.SaveChangesAsync();
-                return Ok("Sikeres regisztráció! Most már beléphetsz.");
-                //user.Active = false;
-                //user.Permission = 1;
-                //user.Hash = Program.CreateSHA256(user.Hash);
-                //await _context.Users.AddAsync(user);
-                //await _context.SaveChangesAsync();
-                //Program.SendEmail(user.Email, "Regisztráció megerősítése", $"Kedves {user.Name}!\n\nKöszönjük, hogy regisztrált a Cégautók rendszerébe! Kérjük, erősítse meg regisztrációját az alábbi linkre kattintva:\n\nhttp://http://localhost:5109/Registry?felhasznaloNev={user.LoginName}&email={user.Email}");
-                //return Ok("Sikeres regissztráció, erősítse meg a megadott emailre kiküldött linkre kattintva.");
 
+                _context.Users.Add(newUser);
+                await _context.SaveChangesAsync();
+
+                // JWT Token generálás
+                var token = GenerateJwtToken(newUser);
+
+                return Ok(new
+                {
+                    message = "Sikeres regisztráció!",
+                    token = token,
+                    user = new { newUser.UserId, newUser.Username, newUser.Email }
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest($"Hiba történt: {ex.Message}");
+                return StatusCode(500, $"Hiba: {ex.Message}");
             }
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> GetRegistry([FromQuery] string felhasznaloNev, [FromQuery] string email)
-        //{
-        //    try
-        //    {
-        //        User user = await _context.Users.FirstOrDefaultAsync(u => u.Username == felhasznaloNev && u.Email == email);
-        //        if (user != null)
-        //        {
-        //            //user.Active = true;
-        //            //user.Permission = 2;
-        //            //_context.Users.Update(user);
-        //            //await _context.SaveChangesAsync();
-        //            //return Ok("Sikeres regisztráció megerősítés, mostantól be tud jelentkezni.");
-        //            return Ok("Regisztráció megerősítése jelenleg nem elérhető.");
-        //        }
-        //        else
-        //        {
-        //            return BadRequest("Hiba történt: Nincs ilyen felhasználó.");
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest($"Hiba történt: {ex.Message}");
-        //    }
-        //}
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDTO dto)
+        {
+            try
+            {
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Username == dto.Username);
 
-        //[HttpPost("login")]
-        //public async Task<IActionResult> Login([FromBody] NutriTrack.Models.User loginData)
-        //{
-        //    // 1. Megkeressük a felhasználót név alapján
-        //    var dbUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == loginData.Username);
+                if (user == null || !PasswordHasher.VerifyPassword(dto.Password, user.PasswordHash))
+                {
+                    return Unauthorized("Hibás felhasználónév vagy jelszó!");
+                }
 
-        //    if (dbUser == null)
-        //    {
-        //        return BadRequest("Nincs ilyen felhasználó.");
-        //    }
+                var token = GenerateJwtToken(user);
 
-        //    // 2. Jelszó ellenőrzése (1-es kód beépítve)
-        //    // loginData.PasswordHash -> Amit most írt be (sima szöveg)
-        //    // dbUser.PasswordHash -> Ami az adatbázisban van (titkosított)
-        //    bool isPasswordValid = NutriTrack.Helpers.PasswordHasher.VerifyPassword(loginData.PasswordHash, dbUser.PasswordHash);
+                return Ok(new
+                {
+                    token = token,
+                    user = new { user.UserId, user.Username, user.Email, user.Privilege }
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Hiba: {ex.Message}");
+            }
+        }
 
-        //    if (!isPasswordValid)
-        //    {
-        //        return BadRequest("Hibás jelszó!");
-        //    }
+        private string GenerateJwtToken(User user)
+        {
+            var jwtSettings = _configuration.GetSection("JwtSettings");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        //    // 3. SIKER
-        //    return Ok("Sikeres belépés!");
-        //    // (Később ide jön majd a Token generálás, ha azt is megcsináljuk)
-        //}
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Privilege.ToString())
+            };
 
+            var token = new JwtSecurityToken(
+                issuer: jwtSettings["Issuer"],
+                audience: jwtSettings["Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddHours(2),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
     }
 }

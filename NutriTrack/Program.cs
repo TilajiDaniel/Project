@@ -20,6 +20,7 @@ namespace NutriTrack
                 options.UseMySQL(builder.Configuration.GetConnectionString("NutritrackConnection"));
             });
             builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
+
             // JWT Settings Configuration
             var jwtSettings=new Jwtsettings();
             builder.Configuration.GetSection("JwtSettings").Bind(jwtSettings);
