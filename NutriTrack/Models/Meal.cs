@@ -14,6 +14,7 @@ public partial class Meal
     public string MealType { get; set; } = null!;
 
     public DateTime CreatedAt { get; set; }
+    public string FoodInfo { get; set; } = null!;
 
     public virtual ICollection<MealFoodItem> MealFoodItems { get; set; } = new List<MealFoodItem>();
 

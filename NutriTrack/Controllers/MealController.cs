@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NutriTrack.Models;
+using System.Security.Claims;
+using System.Text.Json;
+using NutriTrack.DTOs.NutriTrack.DTOs;
+using NutriTrack.DTOs;
 
 namespace NutriTrack.Controllers
 {
@@ -144,5 +148,27 @@ namespace NutriTrack.Controllers
             }
 
         }
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> Post([FromBody] CreateMealDTO dto)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "1");
+
+            var meal = new Meal
+            {
+                UserId = userId,
+                MealDate = DateTime.Parse(dto.MealDate),
+                MealType = dto.MealType,
+                CreatedAt = DateTime.UtcNow,
+                FoodInfo = dto.FoodInfo  // ← JSON étel adatok
+            };
+
+            _context.Meals.Add(meal);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mealId = meal.MealId });
+        }
+
+
     }
 }
