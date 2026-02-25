@@ -117,9 +117,9 @@ const EtelKereses = () => {
   };
   // A kódban lévő addFoodToMeal függvényt cseréld erre:
 const addFoodToNaplo = (food) => {
-  // Teljes étel objektum átadása URL paraméterben
+  console.log("Kattintott étel nyers adatai az API-ból:", food);
   const foodData = encodeURIComponent(JSON.stringify({
-    id: food.id || food.foodItemId,
+    foodId: food.foodId || food.FoodId || food.id || food.food_id,
     name: food.name,
     calories: food.caloriesPer100g,
     protein: food.proteinPer100g,

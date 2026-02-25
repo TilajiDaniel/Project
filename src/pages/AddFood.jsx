@@ -8,12 +8,11 @@ import '../styles/AddFood.css';
 const AddFood = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { token } = useAuth(); // ← Token a header-hez
+  const { token } = useAuth(); 
   const [selectedFood, setSelectedFood] = useState(null);
   const [quantity, setQuantity] = useState(100);
   const [saving, setSaving] = useState(false);
 
-  // URL paraméterek kiolvasása
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const foodData = params.get('food');
@@ -31,79 +30,49 @@ const AddFood = () => {
     }
   }, [location.search, navigate]);
 
-  // 🔥 MEALS TÁBLÁBA MENTÉS
+
   const addToMeal = async (mealType) => {
+    console.log("KIVÁLASZTOTT ÉTEL:", selectedFood);
     setSaving(true);
+
+    console.log("Kiválasztott étel pontos adatai:", selectedFood);
     
-    const mealData = {
-      user_id: 1, // ← Backend tokenből veszi ki
-      meal_date: new Date().toISOString().split('T')[0],
-      meal_type: mealType.charAt(0).toUpperCase() + mealType.slice(1), // Breakfast
-      food_info: JSON.stringify({
-        foodId: selectedFood.id,
-        foodName: selectedFood.name,
-        quantity: quantity,
-        calories: Math.round((selectedFood.calories * quantity) / 100),
-        protein: Math.round((selectedFood.protein * quantity) / 100),
-        carbs: Math.round((selectedFood.carbs * quantity) / 100),
-        fat: Math.round((selectedFood.fat * quantity) / 100)
-      })
-    };
+    const authToken = token || localStorage.getItem('token') || localStorage.getItem('Token');
+    
+    const today = new Date().toISOString().split('T')[0];
+
+    const formattedMealType = mealType.charAt(0).toUpperCase() + mealType.slice(1);
+
+    const payload = {
+    userId: 1, 
+    mealDate: today,
+    mealType: formattedMealType,
+    foodItems: [
+      {
+        foodId: selectedFood.foodId,
+        quantityGrams: quantity
+      }
+    ]
+};
 
     try {
-      // 🔥 ADATBÁZIS FELTÖLTÉS - MEALS tábla
-      const response = await fetch('https://localhost:7133/api/Meals', {
+      const response = await fetch('https://localhost:7133/api/Meal', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token || localStorage.getItem('token')}`
+          'Authorization': `Bearer ${authToken}` 
         },
-        body: JSON.stringify(mealData)
+        body: JSON.stringify(payload)
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      console.log('✅ MEALS táblába mentve:', result);
-
-      // 🔥 LOCALSTORAGE BACKUP
-      const today = new Date().toISOString().split('T')[0];
-      const existingLog = JSON.parse(localStorage.getItem('dailyLog') || '{}');
-      if (!existingLog[today]) existingLog[today] = [];
-      
-      existingLog[today].push({
-        meal_id: result.meal_id,
-        ...mealData,
-        timestamp: new Date().toISOString()
-      });
-      
-      localStorage.setItem('dailyLog', JSON.stringify(existingLog));
-      console.log('💾 LocalStorage backup OK');
-
-      // SIKER - NAPLÓRA IRÁNYÍT
-      navigate('/naplo');
-      
+      if (response.ok) {
+    alert('Étel sikeresen hozzáadva a naplóhoz! ✅');
+} else {
+    alert(`Hiba a mentés során...`);
+}
     } catch (error) {
-      console.error('❌ ADATBÁZIS HIBA:', error);
-      
-      // FALLBACK: CSAK LOCALSTORAGE
-      const today = new Date().toISOString().split('T')[0];
-      const existingLog = JSON.parse(localStorage.getItem('dailyLog') || '{}');
-      if (!existingLog[today]) existingLog[today] = [];
-      
-      existingLog[today].push({
-        ...mealData,
-        error: true,
-        timestamp: new Date().toISOString()
-      });
-      
-      localStorage.setItem('dailyLog', JSON.stringify(existingLog));
-      console.log('⚠️ Csak localStorage-ba mentve');
-      
-      alert('Internet hiba! LocalStorage-ba mentve ✅');
-      navigate('/naplo');
+      console.error('Hálózati hiba mentéskor:', error);
+      alert('Nem sikerült csatlakozni a szerverhez. Ellenőrizd az internetkapcsolatot!');
     } finally {
       setSaving(false);
     }
@@ -217,7 +186,7 @@ const AddFood = () => {
 
           <button 
             className="back-btn"
-            onClick={() => navigate('/etel-kereses')}
+            onClick={() => navigate('/Etel-kereses')}
             disabled={saving}
           >
             ← Vissza a kereséshez
@@ -228,4 +197,4 @@ const AddFood = () => {
   );
 };
 
-export { AddFood };
+export {AddFood}; 
