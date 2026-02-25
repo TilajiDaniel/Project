@@ -264,3 +264,97 @@ button[type="submit"] {
     padding: 25px 30px;
   }
 }
+/* Popup stílusok - MŰKÖDIK A LÉTEZŐ CSS-SZEL */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeInContainer 0.3s ease-out;
+}
+
+.popup-window {
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(25px);
+  border-radius: 24px;
+  max-width: 520px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 55px rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.4);
+  animation: slideUp 0.3s ease-out;
+}
+
+.popup-header {
+  padding: 30px 35px 20px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.popup-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #2d3748;
+  margin: 0;
+}
+
+.popup-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #666;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.popup-close:hover {
+  background: rgba(0,0,0,0.1);
+  color: #333;
+}
+
+.popup-content {
+  padding: 30px 35px 35px;
+}
+
+.popup-list { list-style: none; padding: 0; margin: 0 0 25px 0; }
+
+.popup-item {
+  background: rgba(255,255,255,0.8);
+  margin-bottom: 15px;
+  padding: 20px 25px;
+  border-radius: 16px;
+  border-left: 5px solid #667eea;
+  font-size: 18px;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.popup-item strong {
+  color: #667eea;
+  font-weight: 800;
+  font-size: 19px;
+}
+
+.popup-gain { border-left-color: #28a745; }
+.popup-maintain { border-left-color: #17a2b8; }
+.popup-lose { border-left-color: #dc3545; }
+
+.popup-disclaimer {
+  text-align: center;
+  color: #718096;
+  font-size: 15px;
+  font-style: italic;
+  font-weight: 500;
+  margin: 0;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0,0,0,0.1);
+}

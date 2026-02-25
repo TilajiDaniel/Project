@@ -130,16 +130,45 @@ const Kalorie = () => {
         </button>
       </form>
       {results && (
-        <div className="mt-6 p-4 bg-gray-50 rounded-md">
-          <h3 className="text-lg font-semibold mb-4">Daily Calorie Recommendations:</h3>
-          <ul className="space-y-2 text-lg">
-            <li><strong>Weight gain:</strong> {results.gain} calories</li>
-            <li><strong>Maintaining weight:</strong> {results.maintain} calories</li>
-            <li><strong>Losing weight:</strong> {results.lose} calories</li>
-          </ul>
-          <p className="text-xs mt-2 text-gray-500">These are estimates. Consult a professional for personalized advice.</p>
+  <>
+  <div 
+      className="popup-overlay"
+      onClick={(e) => {
+        // Overlay kattintás = bezárás (de nem a popup belseje)
+        if (e.target === e.currentTarget) {
+          setResults(null); // vagy setShowResults(false)
+        }
+      }}
+    ></div>
+    <div className="popup-overlay">
+      <div className="popup-window">
+        <div className="popup-header">
+          <h3 className="popup-title">Daily Calorie Recommendations</h3>
+          <button className="popup-close" onClick={() => setResults(null)} >&times;</button>
         </div>
-      )}
+        
+        <div className="popup-content">
+          <ul className="popup-list">
+            <li className="popup-item popup-gain">
+              <strong>Weight gain:</strong> {results.gain} calories
+            </li>
+            <li className="popup-item popup-maintain">
+              <strong>Maintaining weight:</strong> {results.maintain} calories
+            </li>
+            <li className="popup-item popup-lose">
+              <strong>Losing weight:</strong> {results.lose} calories
+            </li>
+          </ul>
+          
+          <p className="popup-disclaimer">
+            Ezek becslések. Szakemberhez forduljon személyre szabott tanácsért.
+          </p>
+        </div>
+      </div>
+    </div>
+  </>
+)}
+
     </div>
     </div>
      </div>

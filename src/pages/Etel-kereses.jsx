@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import '../styles/Etel-kereso.css';
 
@@ -11,10 +12,10 @@ const EtelKereses = () => {
 
   // 🌍 Kategóriák
   const categoryNames = {
-    1: 'Levesek', 2: 'Főtt ételek', 3: 'Gyorsétterem',
-    4: 'Péksütemény', 5: 'Hús', 6: 'Zöldség',
-    7: 'Gyümölcs', 8: 'Tejtermék', 9: 'Ital',
-    10: 'Nassolnivaló', 11: 'Édesség'
+    1: 'Soups', 2: 'Cooked meals', 3: 'Fast food',
+    4: 'Bakery', 5: 'Meat', 6: 'Vegetables',
+    7: 'Fruits', 8: 'Dairy', 9: 'Drinks',
+    10: 'Snacks', 11: 'Desserts'
   };
 
   // 🚀 Ételek betöltése
@@ -86,9 +87,9 @@ const EtelKereses = () => {
     console.log('🔍 Keresés:', term);
     setSearchTerm(term);
   };
-
   // 📱 Kategória kártyák
   const categories = ['Összes', ...Object.entries(categoryNames).map(([id, name]) => name)];
+
 
   // 🖼️ Étel kártyák renderelése
   const renderFoodCards = () => {
@@ -110,9 +111,28 @@ const EtelKereses = () => {
           <span>🧈 Zsír: {food.fatPer100g || 0}g</span>
         </div>
         <small>Kategória: {food.category?.categoryName || food.category?.CategoryName || 'Egyéb'}</small>
+        <button onClick={() => addFoodToNaplo(food)} className="add-food-btn">Hozzáadás</button>
       </div>
     ));
   };
+  // A kódban lévő addFoodToMeal függvényt cseréld erre:
+const addFoodToNaplo = (food) => {
+  // Teljes étel objektum átadása URL paraméterben
+  const foodData = encodeURIComponent(JSON.stringify({
+    id: food.id || food.foodItemId,
+    name: food.name,
+    calories: food.caloriesPer100g,
+    protein: food.proteinPer100g,
+    carbs: food.carbsPer100g,
+    fat: food.fatPer100g,
+    category: food.category?.categoryName
+  }));
+  
+  // ÁTIRÁNYÍTÁS AddFood.jsx-be
+  window.location.href = `/addfood?food=${foodData}&from=search`;
+};
+
+
 
   return (
     <Layout>

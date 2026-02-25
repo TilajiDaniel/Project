@@ -29,7 +29,7 @@ export const About = () => {
         <div className="about-actions">
           <NavLink to="/login" className="btn-primary">🚀 Kezdd most!</NavLink>
           <NavLink to="/register" className="btn-secondary">📝 Regisztráció</NavLink>
-        </div>
+          </div>
       </div>
     </div>
   );
