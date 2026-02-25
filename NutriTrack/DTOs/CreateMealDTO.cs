@@ -1,9 +1,16 @@
-﻿namespace NutriTrack.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+namespace NutriTrack.DTOs
 {
-    public class CreateMealDTO
+    public class CreateMealDto
     {
-        public string MealDate { get; set; } = null!;
-        public string MealType { get; set; } = null!;
-        public string FoodInfo { get; set; } = null!;
+
+        public int UserId { get; set; }
+        public DateTime MealDate { get; set; }
+
+        public string MealType { get; set; }
+
+        public List<MealFoodItemDto> FoodItems { get; set; } = new List<MealFoodItemDto>();
     }
+
+    
 }

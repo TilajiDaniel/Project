@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Dapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MySql.Data.MySqlClient;
+using NutriTrack.DTOs;
+using NutriTrack.DTOs.NutriTrack.DTOs;
 using NutriTrack.Models;
 using System.Security.Claims;
 using System.Text.Json;
-using NutriTrack.DTOs.NutriTrack.DTOs;
-using NutriTrack.DTOs;
 
 namespace NutriTrack.Controllers
 {
@@ -22,7 +24,7 @@ namespace NutriTrack.Controllers
 
         //[Authorize(Roles = "10, 2")]
         [HttpGet("GetAllMeals")]
-        public async Task<IActionResult> GetAllMeals()
+        public async Task<ActionResult> GetAll()
         {
 
             try
@@ -42,7 +44,6 @@ namespace NutriTrack.Controllers
 
                 });
             }
-
 
         }
 
@@ -79,7 +80,6 @@ namespace NutriTrack.Controllers
             }
 
         }
-
 
         [HttpPost("NewMeal")]
         public IActionResult AddNewMeal(Meal meal)
@@ -148,27 +148,57 @@ namespace NutriTrack.Controllers
             }
 
         }
+
         [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> Post([FromBody] CreateMealDTO dto)
+        public async Task<IActionResult> CreateMeal([FromBody] CreateMealDto dto)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "1");
+            // 1. Megnézzük, hogy létezik-e már ez az étkezés (pl. az 1-es User mai Reggelije)
+            var existingMeal = await _context.Meals
+                .FirstOrDefaultAsync(m => m.UserId == dto.UserId
+                                       && m.MealDate == dto.MealDate.Date
+                                       && m.MealType == dto.MealType);
 
-            var meal = new Meal
+            int targetMealId;
+
+            if (existingMeal != null)
             {
-                UserId = userId,
-                MealDate = DateTime.Parse(dto.MealDate),
-                MealType = dto.MealType,
-                CreatedAt = DateTime.UtcNow,
-                FoodInfo = dto.FoodInfo  // ← JSON étel adatok
-            };
+                // Ha MÁR LÉTEZIK (pl. ma már evett egy tojást reggelire), 
+                // akkor nem hozunk létre új étkezést, csak felhasználjuk a meglévő ID-ját!
+                targetMealId = existingMeal.MealId;
+            }
+            else
+            {
+                // Ha MÉG NINCS ilyen étkezés ma, akkor létrehozzuk a főétkezést
+                var newMeal = new Meal
+                {
+                    UserId = dto.UserId,
+                    MealDate = dto.MealDate.Date,
+                    MealType = dto.MealType
+                };
 
-            _context.Meals.Add(meal);
+                _context.Meals.Add(newMeal);
+                await _context.SaveChangesAsync(); // Itt kapjuk meg az új ID-t
+
+                targetMealId = newMeal.MealId;
+            }
+
+            // 2. Ételek hozzárendelése (most már biztosan van egy jó MealId-nk)
+            foreach (var item in dto.FoodItems)
+            {
+                var mealFoodItem = new MealFoodItem
+                {
+                    MealId = targetMealId, // <--- A megtalált vagy az újonnan létrehozott ID
+                    FoodId = item.FoodId,
+                    QuantityGrams = item.QuantityGrams
+                };
+
+                _context.MealFoodItems.Add(mealFoodItem);
+            }
+
+            // Ételek végleges mentése
             await _context.SaveChangesAsync();
 
-            return Ok(new { mealId = meal.MealId });
+            return Ok(new { message = "Sikeres mentés!", mealId = targetMealId });
         }
-
-
     }
 }

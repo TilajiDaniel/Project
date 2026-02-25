@@ -25,6 +25,9 @@ namespace NutriTrack
             var jwtSettings=new Jwtsettings();
             builder.Configuration.GetSection("JwtSettings").Bind(jwtSettings);
             builder.Services.AddSingleton(jwtSettings);
+            builder.Services.AddControllers();
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
             //jwt autorazió
             builder.Services.AddAuthentication(options =>
             {
