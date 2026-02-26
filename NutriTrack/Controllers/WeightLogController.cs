@@ -11,7 +11,17 @@ public class WeightController : ControllerBase
 {
     private readonly TesztContext _context;
     public WeightController(TesztContext context) { _context = context; }
+    private int GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                       ?? User.FindFirst("id")?.Value;
 
+        if (int.TryParse(userIdClaim, out int userId))
+        {
+            return userId;
+        }
+        return 0;
+    }
     [HttpPost]
     public async Task<IActionResult> LogWeight([FromBody] double weight)
     {
@@ -36,7 +46,25 @@ public class WeightController : ControllerBase
             });
         }
 
+
         await _context.SaveChangesAsync();
         return Ok(new { message = "Súly elmentve!" });
     }
+
+        [HttpGet("today")]
+        public async Task<IActionResult> GetTodayWeight()
+        {
+            int currentUserId = GetCurrentUserId();
+            if (currentUserId == 0) return Unauthorized("Érvénytelen felhasználó.");
+
+            var today = DateTime.UtcNow.Date;
+
+            // Csak a bejelentkezett felhasználó mai rekordjait összegezzük
+            var totalWeight = await _context.WeightLogs
+                .Where(w => w.UserId == currentUserId && w.MeasurementDate.Date == today)
+                .SumAsync(w => w.WeightKg);
+
+            return Ok(new { weight = totalWeight });
+        }
+    
 }

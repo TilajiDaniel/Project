@@ -9,7 +9,7 @@ namespace NutriTrack.DTOs
 
         public string MealType { get; set; }
 
-        public List<MealFoodItemDto> FoodItems { get; set; } = new List<MealFoodItemDto>();
+        public List<MealFoodItemDto> FoodItems { get; set; } = new();
     }
 
     

@@ -21,7 +21,10 @@ namespace NutriTrack.Controllers
         {
             _context = context;
         }
-
+        private int GetCurrentUserId()
+        {
+            return int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+        }
         //[Authorize(Roles = "10, 2")]
         [HttpGet("GetAllMeals")]
         public async Task<ActionResult> GetAll()
@@ -200,5 +203,80 @@ namespace NutriTrack.Controllers
 
             return Ok(new { message = "Sikeres mentés!", mealId = targetMealId });
         }
+        [HttpGet("today")]
+        public async Task<IActionResult> GetTodayMeals()
+        {
+            try
+            {
+                int currentUserId = GetCurrentUserId();
+                if (currentUserId == 0) return Unauthorized("Érvénytelen felhasználó.");
+
+                var today = DateTime.UtcNow.Date;
+
+                var todayMeals = await _context.MealFoodItems
+                    .Include(mfi => mfi.Food)
+                    .Include(mfi => mfi.Meal)
+                    .Where(mfi => mfi.Meal.UserId == currentUserId &&
+                                 mfi.Meal.MealDate.Date == today &&
+                                 mfi.QuantityGrams.HasValue) // Csak ahol van mennyiség
+                    .Select(mfi => new
+                    {
+                        itemKey = $"{mfi.MealId}_{mfi.FoodId}",
+                        mealId = mfi.MealId,
+                        mealType = mfi.Meal.MealType,
+                        foodName = mfi.Food.Name,
+                        quantityGrams = mfi.QuantityGrams.Value,
+                        calories = (int)((double)mfi.Food.CaloriesPer100g * mfi.QuantityGrams.Value / 100),
+                        protein = Math.Round((double)mfi.Food.ProteinPer100g * mfi.QuantityGrams.Value / 100, 1)
+                    })
+                    .OrderByDescending(x => x.mealId)
+                    .ThenByDescending(x => x.foodName)
+                    .ToListAsync();
+
+                var totalCalories = todayMeals.Sum(m => m.calories);
+                var totalProtein = Math.Round(todayMeals.Sum(m => m.protein), 1);
+
+                return Ok(new
+                {
+                    meals = todayMeals,
+                    summary = new { totalCalories, totalProtein, itemCount = todayMeals.Count }
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = $"Hiba történt: {ex.Message}" });
+            }
+        }
+
+        [HttpDelete("item/{mealId}/{foodId}")]
+        public async Task<IActionResult> DeleteMealItem(int mealId, int foodId)
+        {
+            try
+            {
+                int currentUserId = GetCurrentUserId();
+                if (currentUserId == 0) return Unauthorized("Érvénytelen felhasználó.");
+
+                var mealItem = await _context.MealFoodItems
+                    .Include(mfi => mfi.Meal)
+                    .FirstOrDefaultAsync(mfi => mfi.MealId == mealId &&
+                                               mfi.FoodId == foodId &&
+                                               mfi.Meal.UserId == currentUserId);
+
+                if (mealItem == null)
+                    return NotFound("Étel nem található");
+
+                _context.MealFoodItems.Remove(mealItem);
+                await _context.SaveChangesAsync();
+
+                return Ok("Sikeres törlés!");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Hiba a törlés közben: {ex.Message}");
+            }
+        }
+
+
+
     }
 }
