@@ -9,6 +9,7 @@ import Login from './components/Login'
 import Register from './components/Register'
 import { About } from "./pages/About"
 import { AddFood } from "./pages/AddFood"
+import { EtelkElrendezese } from './pages/Etelek-elrendezese.jsx'; 
 
 
 function ProtectedRoute({ children }) {
@@ -68,6 +69,7 @@ function AppContent() {
             </ProtectedRoute>
           } 
         />
+        <Route path="/etel-elrendezese" element={<ProtectedRoute><EtelkElrendezese /></ProtectedRoute>} />
         <Route path="/addfood" element={<ProtectedRoute><AddFood /></ProtectedRoute>} />
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="*" element={<h2>404 - Nincs ilyen oldal!</h2>} />

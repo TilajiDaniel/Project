@@ -14,6 +14,7 @@ const Naplo = () => {
   // Oldal betöltésekor lekérdezzük a mai adatot
   useEffect(() => {
     fetchTodayWater();
+    fetchTodayWeight();
   }, []);
 
   const fetchTodayWater = async () => {
@@ -26,7 +27,6 @@ const Naplo = () => {
 
       if (response.ok) {
         const data = await response.json();
-        // A C# Ok(new { amountMilliliters = totalWater })-t küld vissza
         setWaterIntake(data.amountMilliliters || 0); 
       }
     } catch (error) {
@@ -45,7 +45,7 @@ const Naplo = () => {
     try {
       const payload = {
         amountMilliliters: amountToAdd,
-        date: new Date().toISOString() // A C# DateTime-ot vár
+        date: new Date().toISOString()
       };
 
       const response = await fetch('https://localhost:7133/api/WaterIntake', {
@@ -61,43 +61,77 @@ const Naplo = () => {
         throw new Error('Szerver hiba');
       }
       
-      // Ha sikeres, frissítjük a végleges állapotot a biztonság kedvéért
       fetchTodayWater();
 
     } catch (error) {
       console.error('Hiba a mentés során:', error);
       alert('Nem sikerült elmenteni a vizet!');
-      setWaterIntake(previousValue); // Hiba esetén visszavonjuk
+      setWaterIntake(previousValue);
     } finally {
       setLoading(false);
     }
   };
-// --- SÚLY FUNKCIÓ ---
+
+  // --- SÚLY FUNKCIÓK ---
+  const fetchTodayWeight = async () => {
+    try {
+      const response = await fetch('https://localhost:7133/api/Weight/today', {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setWeight(data.weight?.toString() || '');
+        setDisplayWeight(data.weight ? data.weight.toFixed(1) : '--');
+      }
+    } catch (error) {
+      console.error('Hiba a súly lekérésekor:', error);
+    }
+  };
+
   const handleWeightSubmit = async () => {
-    if (!weight || loading) return;
+    if (!weight || weight === '' || loading) return;
     setLoading(true);
 
+    const weightValue = parseFloat(weight);
+    if (isNaN(weightValue)) return;
+
+    const previousDisplayWeight = displayWeight;
+
     try {
+      const payload = {
+        weight: weightValue,
+        date: new Date().toISOString()
+      };
+
       const response = await fetch('https://localhost:7133/api/Weight', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authToken}`
         },
-        body: JSON.stringify(parseFloat(weight))
+        body: JSON.stringify(payload)
       });
 
       if (response.ok) {
-        setDisplayWeight(weight);
+        setDisplayWeight(weightValue.toFixed(1));
+        // Frissítjük a mai súlyt a szerverről
+        await fetchTodayWeight();
         alert("Súly sikeresen rögzítve!");
-        setWeight(''); // Mező ürítése
+      } else {
+        throw new Error('Szerver hiba');
       }
     } catch (error) {
       console.error("Hiba a súly mentésekor:", error);
+      setDisplayWeight(previousDisplayWeight);
+      alert('Nem sikerült elmenteni a súlyt!');
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <Layout>
       <div className="container">
@@ -109,7 +143,8 @@ const Naplo = () => {
             <div className="main-panel weight-card">
               <h3>⚖️ Napi súly</h3>
               <div className="weight-display">
-                <span className="weight-val">{displayWeight}</span> kg
+                <span className="weight-val">{displayWeight}</span>
+                <span className="weight-unit"> kg</span>  
               </div>
               <div className="weight-input-group">
                 <input 
@@ -118,10 +153,17 @@ const Naplo = () => {
                   value={weight} 
                   onChange={(e) => setWeight(e.target.value)}
                   placeholder="0.0"
+                  disabled={loading}
                 />
-                <button onClick={handleWeightSubmit} disabled={loading}>Mentés</button>
+                <button 
+                  onClick={handleWeightSubmit} 
+                  disabled={loading || !weight || weight === ''}
+                >
+                  {loading ? 'Mentés...' : 'Mentés'}
+                </button>
               </div>
             </div>
+            
             <div className="main-panel">🎯 Cél súly</div>
             
             {/* Vízfogyasztás Szekció */}
@@ -132,14 +174,13 @@ const Naplo = () => {
                 <span className="water-unit"> ml</span>
               </div>
               <div className="water-buttons">
-                <button onClick={() => addWater(250)} disabled={loading}>+ 250 ml</button>
-                <button onClick={() => addWater(500)} disabled={loading}>+ 500 ml</button>
+                <div className="water-button">
+                  <button onClick={() => addWater(250)} disabled={loading}>+ 250 ml</button>
+                </div>
+                <div className="water-button">
+                  <button onClick={() => addWater(500)} disabled={loading}>+ 500 ml</button>
+                </div>
               </div>
-            </div>
-
-            <div className="tall-panel">
-              <div className="main-panel">📋 Napi összefoglalás</div>
-              <div className="main-panel">🏃 Edzések</div>
             </div>
           </div>
         </div>

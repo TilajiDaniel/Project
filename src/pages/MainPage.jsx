@@ -12,7 +12,9 @@ const Main = () => {
       'Írd fel minden étkezést!',
       'Figyelj a Portion méretekre!',
       'Igyál elég vizet naponta!',
-      'Mozogj legalább 30 percet!'
+      'Mozogj legalább 30 percet!',
+      'Ne szerencsétlenkedj a diétáddal!',
+      'Ne szerencsejátékozz'
     ];
     let index = 0;
     const interval = setInterval(() => {
@@ -39,17 +41,11 @@ const Main = () => {
           <div className="tall-panel">
             <div className="main-panel">💡 Gyors hozzáférés</div>
             <div className="main-panel">
+              <p>📅 Napi tipp:</p>
               <p id="tipText" style={{ marginTop: '15px', fontWeight: '500' }}>
                 {tipText}
               </p>
             </div>
-            <a 
-              href="/etel-keres" 
-              className="btn btn-primary"
-              style={{ textDecoration: 'none', display: 'inline-block' }}
-            >
-              🍽️ Kezdj el ételt felvenni
-            </a>
           </div>
         </div>
       </div>

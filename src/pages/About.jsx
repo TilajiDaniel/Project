@@ -27,8 +27,9 @@ export const About = () => {
         </div>
         
         <div className="about-actions">
-          <NavLink to="/login" className="btn-primary">🚀 Kezdd most!</NavLink>
+          <NavLink to="/login" className="btn-primary">🚀 Bejelentkezés</NavLink>
           <NavLink to="/register" className="btn-secondary">📝 Regisztráció</NavLink>
+          <NavLink to="/" className="btn-primary">Vissza</NavLink>
           </div>
       </div>
     </div>

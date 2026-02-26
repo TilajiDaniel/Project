@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Layout from './Layout';
+import FabButton from './FabButton';
 import '../styles/AuthForms.css';
+
 
 export default function Register() {
   const [formData, setFormData] = useState({ 
@@ -100,7 +102,10 @@ export default function Register() {
           Van már fiókod? <Link to="/login">Jelentkezz be!</Link>
         </p>
       </div>
+      <FabButton />
     </div>
+
     </Layout>
+    
   );
 }

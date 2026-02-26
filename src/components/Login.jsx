@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Layout from './Layout';
+import FabButton from './FabButton';
 import '../styles/AuthForms.css';
 
 export default function Login() {
@@ -27,7 +28,6 @@ export default function Login() {
 
   return (
     <Layout showNav={false}>
-     
     <div className="auth-container">
       <div className="auth-card">
         <h2>🔐 Bejelentkezés</h2>
@@ -56,10 +56,12 @@ export default function Login() {
             {loading ? 'Belépés...' : 'Bejelentkezés'}
           </button>
         </form>
-        <p><Link to="/register">Regisztráció</Link></p>
+        <p> Nincs még fiókod? <Link to="/register" >Regisztrálj</Link></p>
       </div>
+       <FabButton />
     </div>
 
-    </Layout>
+   
+  </Layout>
   );
 }

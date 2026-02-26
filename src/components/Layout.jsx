@@ -1,6 +1,5 @@
 import React from 'react';
 import NavHeader from './NavHeader';
-import FabButton from './FabButton';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Layout({ children, showNav = true }) {
@@ -12,7 +11,7 @@ export default function Layout({ children, showNav = true }) {
       <main className="main-content">
         {children}
       </main>
-      <FabButton />
+
     </div>
   );
 }
