@@ -32,7 +32,10 @@ const EtelkElrendezese = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setMeals(data.meals || []);
+
+        console.log("Backend válasz:", data);
+
+        setMeals(data.meals || data.Meals || []);
         setTotalCalories(data.summary?.totalCalories || 0);
         setTotalProtein(data.summary?.totalProtein || 0);
       } else {
@@ -149,12 +152,12 @@ const EtelkElrendezese = () => {
 
                   <div className="food-actions">
                     <button 
-                      className="delete-btn"
-                      onClick={() => deleteMealItem(meal.mealId, meal.foodId)}
-                      disabled={loading}
-                    >
-                      🗑️ Törlés
-                    </button>
+  className="delete-btn"
+  onClick={() => deleteMealItem(meal.mealId, meal.foodId)} // Most már lesz meal.foodId
+  disabled={loading}
+>
+  🗑️ Törlés
+</button>
                   </div>
                 </div>
               ))}

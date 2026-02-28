@@ -13,18 +13,32 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    
-    const result = await login(formData.username, formData.password);
-    if (result.success) {
-      navigate('/MainPage');
+ const handleLogin = async (e) => {
+  e.preventDefault();
+  
+  try {
+    const response = await fetch('https://localhost:7133/api/Auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: myUsername, password: myPassword })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      
+      // 💾 ITT MENTJÜK EL AZ ADATOKAT:
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userRole', data.role); // "Admin" vagy "User" fog ide kerülni
+      
+      alert(`Sikeres bejelentkezés! Jogosultság: ${data.role}`);
+      navigate('/dashboard'); // Vagy ahova bejelentkezés után viszed a usert
     } else {
-      setError(result.message);
+      alert("Hibás felhasználónév vagy jelszó!");
     }
-    setLoading(false);
-  };
+  } catch (error) {
+    console.error("Bejelentkezési hiba:", error);
+  }
+};
 
   return (
     <Layout showNav={false}>

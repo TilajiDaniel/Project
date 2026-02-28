@@ -181,7 +181,9 @@ const Naplo = () => {
                   <button onClick={() => addWater(500)} disabled={loading}>+ 500 ml</button>
                 </div>
               </div>
+              
             </div>
+            <div className="main-panel"><button onClick={() => window.location.href = "/etel-elrendezese"}>🍽️ Napi étkezések</button></div>
           </div>
         </div>
       </div>
