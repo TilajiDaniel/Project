@@ -7,8 +7,12 @@ export default function NavHeader() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
+  const userRole = localStorage.getItem('userRole');
+
+
   const handleLogout = () => {
     logout();
+    localStorage.removeItem('userRole');
     navigate('/login');
   };
 
@@ -35,6 +39,11 @@ export default function NavHeader() {
         <NavLink to="/Statisztika" className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}>
           Statisztika
         </NavLink>
+        {userRole === 'Admin' && (
+          <NavLink to="/admin" className={({isActive}) => isActive ? 'nav-link active admin-link' : 'nav-link admin-link'}>
+            ⚙️ Admin
+          </NavLink>
+        )}
         <button onClick={handleLogout} className="btn-logout">
           Kilépés
         </button>

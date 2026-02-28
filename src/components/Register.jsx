@@ -40,7 +40,7 @@ export default function Register() {
     );
     
     if (result.success) {
-      navigate('/MainPage');
+      navigate('/MainPage?new=true');
     } else {
       setError(result.message);
     }

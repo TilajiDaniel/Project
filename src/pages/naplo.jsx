@@ -8,8 +8,7 @@ const Naplo = () => {
   const [displayWeight, setDisplayWeight] = useState('--');
   const [loading, setLoading] = useState(false);
 
-  // A bejelentkezéskor elmentett token kiolvasása
-  const authToken = localStorage.getItem('token'); 
+  const authToken = localStorage.getItem('token');
 
   // Oldal betöltésekor lekérdezzük a mai adatot
   useEffect(() => {
@@ -20,8 +19,11 @@ const Naplo = () => {
   const fetchTodayWater = async () => {
     try {
       const response = await fetch('https://localhost:7133/api/WaterIntake/today', {
+        method: 'GET',
         headers: {
-          'Authorization': `Bearer ${authToken}`
+          'Authorization': `Bearer ${authToken}`, 
+        'Content-Type': 'application/json'
+          
         }
       });
 
@@ -77,7 +79,8 @@ const Naplo = () => {
     try {
       const response = await fetch('https://localhost:7133/api/Weight/today', {
         headers: {
-          'Authorization': `Bearer ${authToken}`
+          Authorization: `Bearer ${authToken}`, 
+          'Content-Type': 'application/json'
         }
       });
 
@@ -102,8 +105,7 @@ const Naplo = () => {
 
     try {
       const payload = {
-        weight: weightValue,
-        date: new Date().toISOString()
+        weight: weightValue
       };
 
       const response = await fetch('https://localhost:7133/api/Weight', {
@@ -131,7 +133,27 @@ const Naplo = () => {
       setLoading(false);
     }
   };
+const [targetWeight, setTargetWeight] = useState(null);
 
+useEffect(() => {
+  const fetchGoal = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('https://localhost:7133/api/User/my-goal', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setTargetWeight(data.targetWeight);
+      }
+    } catch (error) {
+      console.error("Hiba a cél súly lekérésekor:", error);
+    }
+  };
+
+  fetchGoal();
+}, []);
   return (
     <Layout>
       <div className="container">
@@ -164,7 +186,12 @@ const Naplo = () => {
               </div>
             </div>
             
-            <div className="main-panel">🎯 Cél súly</div>
+            <div className="main-panel">
+  <h3>🎯 Cél súly</h3>
+  <div className="weight-display">
+    {targetWeight ? `${targetWeight} kg` : "Nincs megadva"}
+  </div>
+</div>
             
             {/* Vízfogyasztás Szekció */}
             <div className="main-panel water-card">

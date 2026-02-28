@@ -1,7 +1,6 @@
-// src/pages/AddFood.jsx - MEALS táblába mentéssel
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext'; // ← Ha van auth
+import { useAuth } from '../contexts/AuthContext'; 
 import Layout from '../components/Layout';
 import '../styles/AddFood.css';
 
@@ -32,25 +31,26 @@ const AddFood = () => {
 
 
   const addToMeal = async (mealType) => {
-    console.log("KIVÁLASZTOTT ÉTEL:", selectedFood);
     setSaving(true);
-
-    console.log("Kiválasztott étel pontos adatai:", selectedFood);
     
     const authToken = token || localStorage.getItem('token') || localStorage.getItem('Token');
     
-    const today = new Date().toISOString().split('T')[0];
-
     const formattedMealType = mealType.charAt(0).toUpperCase() + mealType.slice(1);
 
-    const payload = {
-    userId: 1, 
-    mealDate: today,
+    const now = new Date();
+
+    const localIsoDate = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString();
+
+    const userIdFromStorage = localStorage.getItem('userId');
+
+const payload = {
+    userId: userIdFromStorage ? parseInt(userIdFromStorage) : 0, 
+    mealDate: localIsoDate,
     mealType: formattedMealType,
     foodItems: [
       {
         foodId: selectedFood.foodId,
-        quantityGrams: quantity
+        quantityGrams: parseInt(quantity)
       }
     ]
 };

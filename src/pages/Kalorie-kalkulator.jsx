@@ -56,6 +56,41 @@ const Kalorie = () => {
       lose: Math.round(maintenance - 500)
     });
   };
+  const saveDailyGoal = async (calories) => {
+  const token = localStorage.getItem('token');
+  
+  if (!token) {
+    alert("Kérjük, jelentkezzen be a cél mentéséhez!");
+    return;
+  }
+
+  const calculatedWater = Math.round(formData.weight * 35);
+
+  try {
+    const response = await fetch('https://localhost:7133/api/Registry/save-daily-goals', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ 
+        dailyCalories: calories, 
+        dailyWater: calculatedWater
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      throw new Error(errorData || "Hiba a mentés során");
+    }
+
+    alert(`Sikeresen beállítva: ${calories} kcal és ${calculatedWater} ml víz naponta!`);
+    setResults(null); 
+  } catch (err) {
+    console.error("Mentési hiba:", err);
+    alert("Nem sikerült elmenteni a célt: " + err.message);
+  }
+};
 
   return (
     <Layout>
@@ -131,37 +166,34 @@ const Kalorie = () => {
       </form>
       {results && (
   <>
-  <div 
-      className="popup-overlay"
-      onClick={(e) => {
-        // Overlay kattintás = bezárás (de nem a popup belseje)
-        if (e.target === e.currentTarget) {
-          setResults(null); // vagy setShowResults(false)
-        }
-      }}
-    ></div>
+    <div className="popup-overlay" onClick={() => setResults(null)}></div>
     <div className="popup-overlay">
       <div className="popup-window">
         <div className="popup-header">
           <h3 className="popup-title">Daily Calorie Recommendations</h3>
-          <button className="popup-close" onClick={() => setResults(null)} >&times;</button>
+          <button className="popup-close" onClick={() => setResults(null)}>&times;</button>
         </div>
         
         <div className="popup-content">
           <ul className="popup-list">
-            <li className="popup-item popup-gain">
-              <strong>Weight gain:</strong> {results.gain} calories
+            <li className="popup-item popup-gain" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <span><strong>Weight gain:</strong> {results.gain} kcal</span>
+              <button className="select-goal-btn" onClick={() => saveDailyGoal(results.gain)}>Kiválasztom</button>
             </li>
-            <li className="popup-item popup-maintain">
-              <strong>Maintaining weight:</strong> {results.maintain} calories
+            
+            <li className="popup-item popup-maintain" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <span><strong>Maintain:</strong> {results.maintain} kcal</span>
+              <button className="select-goal-btn" onClick={() => saveDailyGoal(results.maintain)}>Kiválasztom</button>
             </li>
-            <li className="popup-item popup-lose">
-              <strong>Losing weight:</strong> {results.lose} calories
+            
+            <li className="popup-item popup-lose" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <span><strong>Losing weight:</strong> {results.lose} kcal</span>
+              <button className="select-goal-btn" onClick={() => saveDailyGoal(results.lose)}>Kiválasztom</button>
             </li>
           </ul>
           
           <p className="popup-disclaimer">
-            Ezek becslések. Szakemberhez forduljon személyre szabott tanácsért.
+            A gombra kattintva a választott érték lesz a napi kereted.
           </p>
         </div>
       </div>

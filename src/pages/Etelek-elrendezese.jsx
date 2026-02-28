@@ -168,10 +168,10 @@ const EtelkElrendezese = () => {
           <div className="actions">
             <button 
               className="primary-btn"
-              onClick={fetchTodayMeals}
+              onClick={() => window.location.href = '/naplo'}
               disabled={loading}
             >
-              🔄 Frissítés
+               Vissza
             </button>
           </div>
         </div>
