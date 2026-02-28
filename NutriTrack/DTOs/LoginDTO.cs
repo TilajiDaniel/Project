@@ -1,11 +1,10 @@
-﻿namespace NutriTrack.DTOs
+﻿using Google.Protobuf.WellKnownTypes;
+
+namespace NutriTrack.DTOs
 {
-    namespace NutriTrack.DTOs
+    public class LoginDTO
     {
-        public class LoginDTO
-        {
-            public string Username { get; set; } = null!;
-            public string Password { get; set; } = null!;
-        }
+        public string Username { get; set; } = null!;
+        public string Password { get; set; } = null!;
     }
 }

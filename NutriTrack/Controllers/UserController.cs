@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NutriTrack.Models;
+using System.Security.Claims;
 
 namespace NutriTrack.Controllers
 {
@@ -143,6 +144,23 @@ namespace NutriTrack.Controllers
                 return BadRequest($"Hiba a törlés közben: {ex.Message}");
             }
 
+        }
+
+        [Authorize]
+        [HttpGet("my-goal")]
+        public async Task<IActionResult> GetMyGoal()
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            // Megkeressük a legfrissebb célsúlyt a felhasználóhoz
+            var goal = await _context.WeightGoals
+                .Where(g => g.UserId == userId)
+                .OrderByDescending(g => g.StartDate)
+                .FirstOrDefaultAsync();
+
+            if (goal == null) return NotFound("Nincs még kitűzött cél.");
+
+            return Ok(new { targetWeight = goal.TargetWeight });
         }
     }
 }

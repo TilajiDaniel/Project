@@ -1,12 +1,14 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NutriTrack.Models;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System.Security.Claims;
 
-[Route("api/[controller]")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ApiController]
-[Authorize]
+[Route("api/[controller]")]
 public class WeightController : ControllerBase
 {
     private readonly TesztContext _context;
@@ -22,10 +24,17 @@ public class WeightController : ControllerBase
         }
         return 0;
     }
-    [HttpPost]
-    public async Task<IActionResult> LogWeight([FromBody] double weight)
+    public class WeightRequest
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        public double Weight { get; set; }
+    }
+
+    [Authorize(Roles = "User,Admin")]
+    [HttpPost]
+    public async Task<IActionResult> LogWeight([FromBody] WeightRequest request)
+    {
+        double weight = request.Weight;
+        var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value);
 
         // Megnézzük, van-e már mára bejegyzés
         var today = DateTime.UtcNow.Date;
@@ -51,7 +60,8 @@ public class WeightController : ControllerBase
         return Ok(new { message = "Súly elmentve!" });
     }
 
-        [HttpGet("today")]
+    [Authorize(Roles = "User,Admin")]
+    [HttpGet("today")]
         public async Task<IActionResult> GetTodayWeight()
         {
             int currentUserId = GetCurrentUserId();

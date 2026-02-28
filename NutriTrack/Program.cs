@@ -48,8 +48,17 @@ namespace NutriTrack
                 };
             });
 
-            builder.Services.AddControllers();
-            builder.Services.AddCors(c => { c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()); });
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowOrigin", policy =>
+                {
+                    policy.WithOrigins("http://localhost:5173") // A React portja
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials(); // Ez fontos lehet a biztonság miatt
+                });
+            });
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -90,9 +99,10 @@ namespace NutriTrack
             }
 
             app.UseHttpsRedirection();
-
+            app.UseRouting();
+            app.UseCors("AllowOrigin");
+            app.UseAuthentication();
             app.UseAuthorization();
-            app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             app.MapControllers();
 

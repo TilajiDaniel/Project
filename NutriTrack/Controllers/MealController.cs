@@ -155,53 +155,44 @@ namespace NutriTrack.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateMeal([FromBody] CreateMealDto dto)
         {
-            // 1. Megnézzük, hogy létezik-e már ez az étkezés (pl. az 1-es User mai Reggelije)
-            var existingMeal = await _context.Meals
-                .FirstOrDefaultAsync(m => m.UserId == dto.UserId
-                                       && m.MealDate == dto.MealDate.Date
-                                       && m.MealType == dto.MealType);
-
-            int targetMealId;
-
-            if (existingMeal != null)
+            try
             {
-                // Ha MÁR LÉTEZIK (pl. ma már evett egy tojást reggelire), 
-                // akkor nem hozunk létre új étkezést, csak felhasználjuk a meglévő ID-ját!
-                targetMealId = existingMeal.MealId;
-            }
-            else
-            {
-                // Ha MÉG NINCS ilyen étkezés ma, akkor létrehozzuk a főétkezést
+                // 1. Kinyerjük a bejelentkezett User ID-ját a Tokenből
+                var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+                if (userIdClaim == null) return Unauthorized("Hiányzó token!");
+                int currentUserId = int.Parse(userIdClaim.Value);
+
+                // 2. Létrehozzuk a fő étkezés rekordot (Meal)
                 var newMeal = new Meal
                 {
-                    UserId = dto.UserId,
-                    MealDate = dto.MealDate.Date,
+                    UserId = currentUserId, // Itt adjuk hozzá a szerveroldalon!
+                    MealDate = dto.MealDate,
                     MealType = dto.MealType
                 };
 
                 _context.Meals.Add(newMeal);
-                await _context.SaveChangesAsync(); // Itt kapjuk meg az új ID-t
+                await _context.SaveChangesAsync(); // Elmentjük, hogy legyen MealId
 
-                targetMealId = newMeal.MealId;
-            }
-
-            // 2. Ételek hozzárendelése (most már biztosan van egy jó MealId-nk)
-            foreach (var item in dto.FoodItems)
-            {
-                var mealFoodItem = new MealFoodItem
+                // 3. Hozzáadjuk a tételeket (MealFoodItems)
+                foreach (var item in dto.FoodItems)
                 {
-                    MealId = targetMealId, // <--- A megtalált vagy az újonnan létrehozott ID
-                    FoodId = item.FoodId,
-                    QuantityGrams = item.QuantityGrams
-                };
+                    var mfi = new MealFoodItem
+                    {
+                        MealId = newMeal.MealId,
+                        FoodId = item.FoodId,
+                        QuantityGrams = item.QuantityGrams
+                    };
+                    _context.MealFoodItems.Add(mfi);
+                }
 
-                _context.MealFoodItems.Add(mealFoodItem);
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Sikeres mentés!" });
             }
-
-            // Ételek végleges mentése
-            await _context.SaveChangesAsync();
-
-            return Ok(new { message = "Sikeres mentés!", mealId = targetMealId });
+            catch (Exception ex)
+            {
+                // Itt a konzolon látni fogod a pontos hibaüzenetet Visual Studioban
+                return StatusCode(500, $"Belső hiba: {ex.Message}");
+            }
         }
         [HttpGet("today")]
         public async Task<IActionResult> GetTodayMeals()
@@ -209,42 +200,47 @@ namespace NutriTrack.Controllers
             try
             {
                 int currentUserId = GetCurrentUserId();
-                if (currentUserId == 0) return Unauthorized("Érvénytelen felhasználó.");
+                if (currentUserId == 0) return Unauthorized(new { message = "Érvénytelen felhasználó." });
 
-                var today = DateTime.UtcNow.Date;
 
-                var todayMeals = await _context.MealFoodItems
+                var today = DateTime.Now.Date; 
+                var tomorrow = today.AddDays(1); 
+
+                var queryResult = await _context.MealFoodItems
                     .Include(mfi => mfi.Food)
                     .Include(mfi => mfi.Meal)
                     .Where(mfi => mfi.Meal.UserId == currentUserId &&
-                                 mfi.Meal.MealDate.Date == today &&
-                                 mfi.QuantityGrams.HasValue) // Csak ahol van mennyiség
-                    .Select(mfi => new
-                    {
-                        itemKey = $"{mfi.MealId}_{mfi.FoodId}",
-                        mealId = mfi.MealId,
-                        mealType = mfi.Meal.MealType,
-                        foodName = mfi.Food.Name,
-                        quantityGrams = mfi.QuantityGrams.Value,
-                        calories = (int)((double)mfi.Food.CaloriesPer100g * mfi.QuantityGrams.Value / 100),
-                        protein = Math.Round((double)mfi.Food.ProteinPer100g * mfi.QuantityGrams.Value / 100, 1)
-                    })
-                    .OrderByDescending(x => x.mealId)
-                    .ThenByDescending(x => x.foodName)
+                                  mfi.Meal.MealDate >= today &&
+                                  mfi.Meal.MealDate < tomorrow)
                     .ToListAsync();
 
-                var totalCalories = todayMeals.Sum(m => m.calories);
-                var totalProtein = Math.Round(todayMeals.Sum(m => m.protein), 1);
+                var todayMeals = queryResult.Select(mfi => new
+                {
+                    itemKey = $"{mfi.MealId}_{mfi.FoodId}",
+                    mealId = mfi.MealId,
+                    foodId = mfi.FoodId,
+                    mealType = mfi.Meal.MealType,
+                    foodName = mfi.Food?.Name ?? "Ismeretlen étel",
+                    quantityGrams = mfi.QuantityGrams ?? 0,
+                    calories = (int)((double)(mfi.Food?.CaloriesPer100g ?? 0) * (mfi.QuantityGrams ?? 0) / 100),
+                    protein = Math.Round((double)(mfi.Food?.ProteinPer100g ?? 0) * (mfi.QuantityGrams ?? 0) / 100, 1)
+                })
+                .ToList();
 
                 return Ok(new
                 {
                     meals = todayMeals,
-                    summary = new { totalCalories, totalProtein, itemCount = todayMeals.Count }
+                    summary = new
+                    {
+                        totalCalories = todayMeals.Sum(m => m.calories),
+                        totalProtein = todayMeals.Sum(m => m.protein),
+                        itemCount = todayMeals.Count
+                    }
                 });
             }
             catch (Exception ex)
             {
-                return BadRequest(new { error = $"Hiba történt: {ex.Message}" });
+                return BadRequest(new { error = ex.Message });
             }
         }
 
@@ -254,25 +250,24 @@ namespace NutriTrack.Controllers
             try
             {
                 int currentUserId = GetCurrentUserId();
-                if (currentUserId == 0) return Unauthorized("Érvénytelen felhasználó.");
+                if (currentUserId == 0) return Unauthorized(new { message = "Érvénytelen felhasználó." });
 
                 var mealItem = await _context.MealFoodItems
-                    .Include(mfi => mfi.Meal)
                     .FirstOrDefaultAsync(mfi => mfi.MealId == mealId &&
                                                mfi.FoodId == foodId &&
                                                mfi.Meal.UserId == currentUserId);
 
                 if (mealItem == null)
-                    return NotFound("Étel nem található");
+                    return NotFound(new { message = "Étel nem található" });
 
                 _context.MealFoodItems.Remove(mealItem);
                 await _context.SaveChangesAsync();
 
-                return Ok("Sikeres törlés!");
+                return Ok(new { message = "Sikeres törlés!" });
             }
             catch (Exception ex)
             {
-                return BadRequest($"Hiba a törlés közben: {ex.Message}");
+                return BadRequest(new { message = $"Hiba a törlés közben: {ex.Message}" });
             }
         }
 

@@ -1,15 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using NutriTrack.Models;
-using NutriTrack.DTOs;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization; // Új
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using NutriTrack.DTOs;
+using NutriTrack.Models;
 using System.Security.Claims; // Új
 
 namespace NutriTrack.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
-    [Authorize] // <--- Csak bejelentkezett felhasználók használhatják
+    [Route("api/[controller]")]
     public class WaterIntakeController : ControllerBase
     {
         public readonly NutriTrack.Models.TesztContext _context;
@@ -32,7 +33,7 @@ namespace NutriTrack.Controllers
             return 0;
         }
 
-        // 1. Végpont: Lekérdezi a MAI napi összes ivást (A bejelentkezett usernek!)
+        [Authorize(Roles = "User,Admin")]
         [HttpGet("today")]
         public async Task<IActionResult> GetTodayWater()
         {
@@ -49,7 +50,7 @@ namespace NutriTrack.Controllers
             return Ok(new { amountMilliliters = totalWater });
         }
 
-        // 2. Végpont: Új ivás rögzítése a bejelentkezett felhasználóhoz
+        [Authorize(Roles = "User,Admin")]
         [HttpPost]
         public async Task<IActionResult> AddWater([FromBody] AddWaterDto dto)
         {
