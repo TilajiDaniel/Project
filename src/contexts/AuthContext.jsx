@@ -42,6 +42,8 @@ export function AuthProvider({ children }) {
     try {
       const { data } = await axios.post(`${API_BASE}/login`, { username, password });
       localStorage.setItem('token', data.token);
+      const role = data.user.privilege === 3 ? 'Admin' : 'User';
+      localStorage.setItem('userRole', role);
       setToken(data.token);
       setUser(data.user);
       return { success: true };

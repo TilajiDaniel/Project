@@ -26,16 +26,12 @@ const EtelKereses = () => {
   const loadFoods = async () => {
     try {
       setLoading(true);
-      console.log('📡 API hívás...');
       const response = await fetch('https://localhost:7133/api/FoodItem/GetFoodItems');
       const data = await response.json();
-      
-      console.log('✅ Ételek:', data);
-      console.log('📋 Első étel struktúra:', data[0]); // DEBUG
+ 
       setAllFoods(data || []);
       setFilteredFoods(data || []);
     } catch (error) {
-      console.error('❌ API HIBA:', error);
       setFilteredFoods([]);
     } finally {
       setLoading(false);
@@ -44,7 +40,6 @@ const EtelKereses = () => {
 
   // 🧠 AUTOMATIKUS SZŰRÉS - ez kezeli MINDEN szűrést!
   useEffect(() => {
-    console.log('🔄 Szűrés:', { activeCategory, searchTerm, allFoodsLength: allFoods.length });
     
     let filtered = allFoods;
     
@@ -53,13 +48,11 @@ const EtelKereses = () => {
       const categoryId = Object.entries(categoryNames)
         .find(([id, name]) => name === activeCategory)?.[0];
       
-      console.log('🔍 Kategória ID:', categoryId); // DEBUG
       
       if (categoryId) {
         filtered = filtered.filter(food => {
           const foodCatId = food.category?.categoryId;
           const match = parseInt(foodCatId) === parseInt(categoryId);
-          console.log('🍲 Ételenkénti egyezés:', food.name, foodCatId, '==', categoryId, match); // DEBUG
           return match;
         });
       }
@@ -78,13 +71,12 @@ const EtelKereses = () => {
 
   // 📱 Egyszerűsített kategória kattintás
   const filterByCategory = (categoryName) => {
-    console.log('🖱️ Kategória kattintás:', categoryName);
+
     setActiveCategory(categoryName === 'Összes' ? 'all' : categoryName);
   };
 
   // 🔍 Egyszerűsített keresés
   const handleSearch = (term) => {
-    console.log('🔍 Keresés:', term);
     setSearchTerm(term);
   };
   // 📱 Kategória kártyák
@@ -115,7 +107,10 @@ const EtelKereses = () => {
       </div>
     ));
   };
-  // A kódban lévő addFoodToMeal függvényt cseréld erre:
+
+
+
+  
 const addFoodToNaplo = (food) => {
   console.log("Kattintott étel nyers adatai az API-ból:", food);
   const foodData = encodeURIComponent(JSON.stringify({
