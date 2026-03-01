@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NutriTrack.DTOs;
 using NutriTrack.Models;
 
 namespace NutriTrack.Controllers
@@ -16,7 +17,7 @@ namespace NutriTrack.Controllers
             _context = context;
         }
 
-        //[Authorize(Roles = "10, 2")]
+
         [HttpGet("GetFoodItems")]
         public async Task<IActionResult> GetAllFoodItems()
         {
@@ -43,6 +44,50 @@ namespace NutriTrack.Controllers
 
 
         }
+
+        [HttpPut("UpdateFoodItem/{id}")]
+        public IActionResult UpdateFood(FoodItem food)
+        {
+            try
+            {
+                if(_context.FoodItems.Any(f => f.FoodId == food.FoodId))
+                {
+                    _context.FoodItems.Update(food);
+                    return Ok(new { message = "Sikeres frissítés!" });
+                }
+                else
+                {
+                    return NotFound(new { message = "Nincs ilyen étel!" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Szerver hiba a mentésnél!", details = ex.Message });
+            }
+        }
+
+
+        [HttpDelete("DeleteFoodItem/{id}")]
+        public async Task<IActionResult> DeleteFoodItem(int id)
+        {
+            var food = await _context.FoodItems.FindAsync(id);
+            if (food == null)
+                return NotFound(new { message = "Nincs ilyen étel!" });
+
+            try
+            {
+                _context.FoodItems.Remove(food);
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Étel sikeresen törölve!" });
+            }
+            catch (Exception)
+            {
+                return BadRequest(new { message = "Nem törölhető! Valószínűleg már használatban van egy naplóban." });
+            }
+        }
+
+
+
 
         [HttpGet("FoodItemById/{Id}")]
         public async Task<IActionResult> GetFoodItemById(int Id)
@@ -99,53 +144,8 @@ namespace NutriTrack.Controllers
 
         }
 
-        [HttpPut("ModifyFoodItem")]
-        public IActionResult ModifyFoodItem(FoodItem foodItem)
-        {
 
-            try
-            {
-                if (_context.FoodItems.Contains(foodItem))
-                {
-                    _context.Update(foodItem);
-                    _context.SaveChanges();
-                    return Ok("Sikeres módosítás!");
-                }
-                else
-                    return BadRequest("Nincs ilyen étel!");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"Hiba a módosítás során: {ex.Message}");
-            }
-
-        }
-
-        [HttpDelete("DelFoodItem/{Id}")]
-        public IActionResult DeleteFoodItem(int Id)
-        {
-
-            try
-            {
-                if (_context.FoodItems.Select(f => f.FoodId).Contains(Id))
-                {
-                    FoodItem del = _context.FoodItems.FirstOrDefault(f => f.FoodId == Id);
-                    _context.Remove(del);
-                    _context.SaveChanges();
-                    return Ok("Sikeres törlés!");
-                }
-                else
-                {
-                    return BadRequest("Nincs ilyen felhasználó!");
-                }
-
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"Hiba a törlés közben: {ex.Message}");
-            }
-
-        }
+        
 
         
     }

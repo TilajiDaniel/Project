@@ -17,7 +17,6 @@ namespace NutriTrack.Controllers
             _context = context;
         }
 
-        //[Authorize(Roles = "10, 2")]
         [HttpGet("GetUsers")]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -42,6 +41,36 @@ namespace NutriTrack.Controllers
 
 
         }
+
+        [HttpDelete("DeleteUser/{id}")]
+        public async Task<IActionResult> DeleteUser([FromRoute] int id)
+        {
+            try
+            {
+                var user = await _context.Users.FindAsync(id);
+
+                if (user == null)
+                {
+                    return NotFound(new { message = "Nincs ilyen felhasználó!" });
+                }
+
+                if (user.Privilege == 3)
+                {
+                    return BadRequest(new { message = "Adminisztrátor nem törölhető!" });
+                }
+
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Sikeres törlés!" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "A felhasználó nem törölhető, mert adatok kapcsolódnak hozzá (pl. ételek, napló).", error = ex.Message });
+            }
+        }
+
+
 
         [HttpGet("UserById/{Id}")]
         public async Task<IActionResult> GetUserById(int Id)
@@ -98,6 +127,8 @@ namespace NutriTrack.Controllers
 
         }
 
+
+
         [HttpPut("ModifyUsers")]
         public IActionResult ModifyUser(User user)
         {
@@ -120,31 +151,7 @@ namespace NutriTrack.Controllers
 
         }
 
-        [HttpDelete("DelUser/{Id}")]
-        public IActionResult DeleteUser(int Id)
-        {
 
-            try
-            {
-                if (_context.Users.Select(u => u.UserId).Contains(Id))
-                {
-                    User del = _context.Users.FirstOrDefault(u => u.UserId == Id);
-                    _context.Remove(del);
-                    _context.SaveChanges();
-                    return Ok("Sikeres törlés!");
-                }
-                else
-                {
-                    return BadRequest("Nincs ilyen felhasználó!");
-                }
-
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"Hiba a törlés közben: {ex.Message}");
-            }
-
-        }
 
         [Authorize]
         [HttpGet("my-goal")]

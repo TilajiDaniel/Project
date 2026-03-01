@@ -84,6 +84,7 @@ namespace NutriTrack.Controllers
 
         }
 
+        [Authorize(Roles = "3")]
         [HttpPost("NewMeal")]
         public IActionResult AddNewMeal(Meal meal)
         {
@@ -104,6 +105,7 @@ namespace NutriTrack.Controllers
 
         }
 
+        [Authorize(Roles = "3")]
         [HttpPut("ModifyMeal")]
         public IActionResult ModifyMeal(Meal meal)
         {
@@ -126,6 +128,7 @@ namespace NutriTrack.Controllers
 
         }
 
+        [Authorize(Roles = "3")]
         [HttpDelete("DelMeal/{Id}")]
         public IActionResult DeleteMeal(int Id)
         {

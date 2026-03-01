@@ -4,6 +4,6 @@ namespace NutriTrack.DTOs
     public class SaveSettingsDto
     {
         public int DailyCalories { get; set; }
-        public int DailyWater { get; set; } // Opcionális, ha később akarod
+        public int DailyWater { get; set; } 
     }
 }

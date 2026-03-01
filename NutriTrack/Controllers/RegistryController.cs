@@ -100,7 +100,15 @@ namespace NutriTrack.Controllers
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            string roleName = user.Privilege == 1 ? "User" : "Admin";
+            string roleName;
+            if (user.Privilege == 3)
+            {
+                roleName = "Admin";
+            }
+            else
+            {
+                roleName = "User";
+            }
 
             var claims = new List<Claim>
             {
@@ -173,7 +181,7 @@ namespace NutriTrack.Controllers
         [HttpGet("weekly-stats")]
         public async Task<ActionResult<IEnumerable<WeeklyStatsDto>>> GetWeeklyStats()
         {
-            // 1. Felhasználó azonosítása
+            // 1. Felhasználó azonosítása 
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!int.TryParse(userIdString, out int userId)) return Unauthorized();
 
