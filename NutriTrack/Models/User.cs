@@ -21,6 +21,10 @@ public partial class User
 
     public int? Privilege { get; set; }
 
+    public string? EmailVerificationToken { get; set; }
+
+    public DateTime? VerificationTokenExpiry { get; set; }
+
     public virtual ICollection<Meal>? Meals { get; set; } = new List<Meal>();
 
     public virtual Privilege? PrivilegeNavigation { get; set; }

@@ -221,6 +221,16 @@ public partial class TesztContext : DbContext
                 .HasDefaultValueSql("'NULL'")
                 .HasColumnName("weight_kg");
 
+            entity.Property(e => e.EmailVerificationToken)
+                .HasMaxLength(255)
+                .HasDefaultValueSql("'NULL'")
+                .HasColumnName("email_verification_token");
+
+            entity.Property(e => e.VerificationTokenExpiry)
+                .HasDefaultValueSql("'NULL'")
+                .HasColumnType("datetime")
+                .HasColumnName("verification_token_expiry");
+
             entity.HasOne(d => d.PrivilegeNavigation).WithMany(p => p.Users)
                 .HasPrincipalKey(p => p.Level)
                 .HasForeignKey(d => d.Privilege)

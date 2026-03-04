@@ -5,10 +5,10 @@ using Microsoft.IdentityModel.Tokens;
 using NutriTrack.DTOs;
 using NutriTrack.Helpers;
 using NutriTrack.Models;
+using NutriTrack.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-
 namespace NutriTrack.Controllers
 {
     [Route("api/[controller]")]
@@ -16,12 +16,14 @@ namespace NutriTrack.Controllers
     public class RegistryController : ControllerBase
     {
         private readonly TesztContext _context;
-        private readonly IConfiguration _configuration;
+        private readonly Jwtsettings _jwtSettings;
+        private readonly EmailService _emailService;
 
-        public RegistryController(TesztContext context, IConfiguration configuration)
+        public RegistryController(TesztContext context, Jwtsettings jwtSettings, EmailService emailService)
         {
             _context = context;
-            _configuration = configuration;
+            _jwtSettings = jwtSettings;
+            _emailService = emailService;
         }
 
         [HttpPost("register")]
@@ -29,33 +31,33 @@ namespace NutriTrack.Controllers
         {
             try
             {
-                // Duplikáció ellenőrzés
                 if (_context.Users.Any(u => u.Username == dto.Username))
                     return BadRequest("Felhasználónév már foglalt.");
 
                 if (_context.Users.Any(u => u.Email == dto.Email))
                     return BadRequest("Email már regisztrálva.");
 
-                // User létrehozása
+                var verificationToken = Guid.NewGuid().ToString("N");
+
                 User newUser = new User
                 {
                     Username = dto.Username,
                     Email = dto.Email,
-                    PasswordHash = PasswordHasher.HashPassword(dto.Password), // ← Hashelés itt!
+                    PasswordHash = PasswordHasher.HashPassword(dto.Password),
                     Privilege = 1,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.Now,
+                    EmailVerificationToken = verificationToken,
+                    VerificationTokenExpiry = DateTime.UtcNow.AddHours(24)
                 };
 
                 _context.Users.Add(newUser);
                 await _context.SaveChangesAsync();
 
-                // JWT Token generálás
-                var token = GenerateJwtToken(newUser);
+                await _emailService.SendVerificationEmailAsync(newUser.Email, newUser.Username, verificationToken);
 
                 return Ok(new
                 {
-                    message = "Sikeres regisztráció!",
-                    token = token,
+                    message = "Sikeres regisztráció! Ellenőrizd az email fiókodat a megerősítéshez.",
                     user = new { newUser.UserId, newUser.Username, newUser.Email }
                 });
             }
@@ -63,6 +65,48 @@ namespace NutriTrack.Controllers
             {
                 return StatusCode(500, $"Hiba: {ex.Message}");
             }
+        }
+
+        [HttpGet("verify-email")]
+        public async Task<IActionResult> VerifyEmail([FromQuery] string token)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.EmailVerificationToken == token);
+
+            if (user == null)
+                return BadRequest("Érvénytelen token!");
+
+            if (user.VerificationTokenExpiry < DateTime.UtcNow)
+                return BadRequest("A token lejárt! Kérj új megerősítő emailt.");
+
+            if (user.Privilege > 1)
+                return Ok(new { message = "Ez az email már meg van erősítve!" });
+
+            user.Privilege = 2;
+            user.EmailVerificationToken = null;
+            user.VerificationTokenExpiry = null;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Email sikeresen megerősítve! Most már bejelentkezhetsz." });
+        }
+
+        [HttpPost("resend-verification")]
+        public async Task<IActionResult> ResendVerification([FromBody] LoginDTO dto)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Username || u.Username == dto.Username);
+
+            if (user == null || !PasswordHasher.VerifyPassword(dto.Password, user.PasswordHash))
+                return Unauthorized("Hibás adatok!");
+
+            if (user.Privilege > 1)
+                return BadRequest("Ez az email már meg van erősítve!");
+
+            user.EmailVerificationToken = Guid.NewGuid().ToString("N");
+            user.VerificationTokenExpiry = DateTime.UtcNow.AddHours(24);
+            await _context.SaveChangesAsync();
+
+            await _emailService.SendVerificationEmailAsync(user.Email, user.Username, user.EmailVerificationToken);
+
+            return Ok(new { message = "Megerősítő email újra elküldve!" });
         }
 
         [HttpPost("login")]
@@ -74,9 +118,10 @@ namespace NutriTrack.Controllers
                     .FirstOrDefaultAsync(u => u.Username == dto.Username);
 
                 if (user == null || !PasswordHasher.VerifyPassword(dto.Password, user.PasswordHash))
-                {
                     return Unauthorized("Hibás felhasználónév vagy jelszó!");
-                }
+
+                if (user.Privilege == 1)
+                    return Unauthorized("Az email-cím nincs megerősítve! Ellenőrizd az emailjeidet.");
 
                 var token = GenerateJwtToken(user);
 
@@ -94,8 +139,7 @@ namespace NutriTrack.Controllers
 
         private string GenerateJwtToken(User user)
         {
-            var jwtSettings = _configuration.GetSection("JwtSettings");
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim>
@@ -107,8 +151,8 @@ namespace NutriTrack.Controllers
             };
 
             var token = new JwtSecurityToken(
-                issuer: jwtSettings["Issuer"],
-                audience: jwtSettings["Audience"],
+                issuer: _jwtSettings.Issuer,
+                audience: _jwtSettings.Audience,
                 claims: claims,
                 expires: DateTime.Now.AddHours(2),
                 signingCredentials: creds
