@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NutriTrack.DTOs;
+using NutriTrack.Helpers;
 using NutriTrack.Models;
+using NutriTrack.Services;
 using System.Security.Claims;
 
 namespace NutriTrack.Controllers
@@ -10,11 +13,13 @@ namespace NutriTrack.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly NutriTrack.Models.TesztContext _context;
+        private readonly TesztContext _context;
+        private readonly EmailService _emailService;
 
-        public UserController(NutriTrack.Models.TesztContext context)
+        public UserController(TesztContext context, EmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         [Authorize(Roles = "3")]
@@ -23,16 +28,91 @@ namespace NutriTrack.Controllers
         {
             try
             {
-                List<User> Users = await _context.Users.ToListAsync();
-                return Ok(Users);
+                var users = await _context.Users.ToListAsync();
+                return Ok(users);
             }
             catch (Exception ex)
             {
-                return BadRequest(new User()
+                return BadRequest(new User() { UserId = -1, Username = $"Hiba történt: {ex.Message}" });
+            }
+        }
+
+        [Authorize(Roles = "2,3")]
+        [HttpGet("UserById/{id}")]
+        public async Task<IActionResult> GetUserById(int id)
+        {
+            try
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
+                if (user is null)
+                    return BadRequest(new User() { UserId = -1, Username = "Nincs ilyen azonosítójú felhasználó" });
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new User() { UserId = -1, Username = $"Hiba történt: {ex.Message}" });
+            }
+        }
+
+        [Authorize(Roles = "3")]
+        [HttpPost("NewUser")]
+        public async Task<IActionResult> AddNewUser([FromBody] RegistryDTO dto)
+        {
+            try
+            {
+                if (_context.Users.Any(u => u.Username == dto.Username))
+                    return BadRequest("Felhasználónév már foglalt.");
+
+                if (_context.Users.Any(u => u.Email == dto.Email))
+                    return BadRequest("Email már regisztrálva.");
+
+                var verificationToken = Guid.NewGuid().ToString("N");
+
+                var newUser = new User
                 {
-                    UserId = -1,
-                    Username = $"Hiba történt: {ex.Message}",
+                    Username = dto.Username,
+                    Email = dto.Email,
+                    PasswordHash = PasswordHasher.HashPassword(dto.Password),
+                    Privilege = 1,
+                    CreatedAt = DateTime.Now,
+                    EmailVerificationToken = verificationToken,
+                    VerificationTokenExpiry = DateTime.UtcNow.AddHours(24)
+                };
+
+                _context.Users.Add(newUser);
+                await _context.SaveChangesAsync();
+
+                await _emailService.SendVerificationEmailAsync(newUser.Email, newUser.Username, verificationToken);
+
+                return Ok(new
+                {
+                    message = "Felhasználó létrehozva, megerősítő email elküldve!",
+                    user = new { newUser.UserId, newUser.Username, newUser.Email }
                 });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Hiba történt a felvétel során: {ex.Message}");
+            }
+        }
+
+        [Authorize(Roles = "3")]
+        [HttpPut("ModifyUsers")]
+        public async Task<IActionResult> ModifyUser(User user)
+        {
+            try
+            {
+                if (!_context.Users.Any(u => u.UserId == user.UserId))
+                    return BadRequest("Nincs ilyen felhasználó!");
+
+                _context.Update(user);
+                await _context.SaveChangesAsync();
+                return Ok("Sikeres módosítás!");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Hiba a módosítás során: {ex.Message}");
             }
         }
 
@@ -44,15 +124,11 @@ namespace NutriTrack.Controllers
             {
                 var user = await _context.Users.FindAsync(id);
 
-                if (user == null)
-                {
+                if (user is null)
                     return NotFound(new { message = "Nincs ilyen felhasználó!" });
-                }
 
                 if (user.Privilege == 3)
-                {
                     return BadRequest(new { message = "Adminisztrátor nem törölhető!" });
-                }
 
                 _context.Users.Remove(user);
                 await _context.SaveChangesAsync();
@@ -61,99 +137,23 @@ namespace NutriTrack.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = "A felhasználó nem törölhető, mert adatok kapcsolódnak hozzá (pl. ételek, napló).", error = ex.Message });
+                return BadRequest(new { message = "A felhasználó nem törölhető, mert adatok kapcsolódnak hozzá.", error = ex.Message });
             }
         }
-
-
-
-        [Authorize(Roles = "2,3")]
-        [HttpGet("UserById/{Id}")]
-        public async Task<IActionResult> GetUserById(int Id)
-        {
-            try
-            {
-                var user = await _context.Users.FirstOrDefaultAsync(f => f.UserId == Id);
-                if (user is User)
-                {
-                    return Ok(user);
-                }
-                else
-                {
-                    return BadRequest(new User()
-                    {
-                        UserId = -1,
-                        Username = $"Hiba történt: Nincs ilyen azonosítójú felhasználó",
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new User()
-                {
-                    UserId = -1,
-                    Username = $"Hiba történt: {ex.Message}",
-
-                });
-            }
-
-        }
-
-
-        [Authorize(Roles = "3")]
-        [HttpPost("NewUser")]
-        public async Task<IActionResult> AddNewUser(User user)
-        {
-            try
-            {
-                _context.Add(user);
-                await _context.SaveChangesAsync();
-                return Ok("Sikeres rögzítés");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"Hiba történt a felvétel során: {ex.Message}");
-            }
-        }
-
-
-
-        [Authorize(Roles = "3")]
-        [HttpPut("ModifyUsers")]
-        public async Task<IActionResult> ModifyUser(User user)
-        {
-            try
-            {
-                if (_context.Users.Contains(user))
-                {
-                    _context.Update(user);
-                    await _context.SaveChangesAsync();
-                    return Ok("Sikeres módosítás!");
-                }
-                else
-                    return BadRequest("Nincs ilyen felhasználó!");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"Hiba a módosítás során: {ex.Message}");
-            }
-        }
-
-
 
         [Authorize(Roles = "2,3")]
         [HttpGet("my-goal")]
         public async Task<IActionResult> GetMyGoal()
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdString, out int userId)) return Unauthorized();
 
-            // Megkeressük a legfrissebb célsúlyt a felhasználóhoz
             var goal = await _context.WeightGoals
                 .Where(g => g.UserId == userId)
                 .OrderByDescending(g => g.StartDate)
                 .FirstOrDefaultAsync();
 
-            if (goal == null) return NotFound("Nincs még kitűzött cél.");
+            if (goal is null) return NotFound("Nincs még kitűzött cél.");
 
             return Ok(new { targetWeight = goal.TargetWeight });
         }
