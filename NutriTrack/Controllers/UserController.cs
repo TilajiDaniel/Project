@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NutriTrack.Models;
@@ -11,22 +10,21 @@ namespace NutriTrack.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        public readonly NutriTrack.Models.TesztContext _context;
+        private readonly NutriTrack.Models.TesztContext _context;
+
         public UserController(NutriTrack.Models.TesztContext context)
         {
             _context = context;
         }
 
+        [Authorize(Roles = "3")]
         [HttpGet("GetUsers")]
         public async Task<IActionResult> GetAllUsers()
         {
-
             try
             {
                 List<User> Users = await _context.Users.ToListAsync();
-
                 return Ok(Users);
-
             }
             catch (Exception ex)
             {
@@ -34,14 +32,11 @@ namespace NutriTrack.Controllers
                 {
                     UserId = -1,
                     Username = $"Hiba történt: {ex.Message}",
-
-
                 });
             }
-
-
         }
 
+        [Authorize(Roles = "3")]
         [HttpDelete("DeleteUser/{id}")]
         public async Task<IActionResult> DeleteUser([FromRoute] int id)
         {
@@ -72,10 +67,10 @@ namespace NutriTrack.Controllers
 
 
 
+        [Authorize(Roles = "2,3")]
         [HttpGet("UserById/{Id}")]
         public async Task<IActionResult> GetUserById(int Id)
         {
-
             try
             {
                 var user = await _context.Users.FirstOrDefaultAsync(f => f.UserId == Id);
@@ -89,10 +84,8 @@ namespace NutriTrack.Controllers
                     {
                         UserId = -1,
                         Username = $"Hiba történt: Nincs ilyen azonosítójú felhasználó",
-
                     });
                 }
-
             }
             catch (Exception ex)
             {
@@ -107,38 +100,34 @@ namespace NutriTrack.Controllers
         }
 
 
+        [Authorize(Roles = "3")]
         [HttpPost("NewUser")]
-        public IActionResult AddNewUser(User user)
+        public async Task<IActionResult> AddNewUser(User user)
         {
-
             try
             {
-
-
                 _context.Add(user);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return Ok("Sikeres rögzítés");
-
             }
             catch (Exception ex)
             {
                 return BadRequest($"Hiba történt a felvétel során: {ex.Message}");
             }
-
         }
 
 
 
+        [Authorize(Roles = "3")]
         [HttpPut("ModifyUsers")]
-        public IActionResult ModifyUser(User user)
+        public async Task<IActionResult> ModifyUser(User user)
         {
-
             try
             {
                 if (_context.Users.Contains(user))
                 {
                     _context.Update(user);
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
                     return Ok("Sikeres módosítás!");
                 }
                 else
@@ -148,12 +137,11 @@ namespace NutriTrack.Controllers
             {
                 return BadRequest($"Hiba a módosítás során: {ex.Message}");
             }
-
         }
 
 
 
-        [Authorize]
+        [Authorize(Roles = "2,3")]
         [HttpGet("my-goal")]
         public async Task<IActionResult> GetMyGoal()
         {

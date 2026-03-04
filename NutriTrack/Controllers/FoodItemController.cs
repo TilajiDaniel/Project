@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using NutriTrack.DTOs;
 using NutriTrack.Models;
 
 namespace NutriTrack.Controllers
@@ -11,25 +9,25 @@ namespace NutriTrack.Controllers
     [ApiController]
     public class FoodItemController : ControllerBase
     {
-        public readonly NutriTrack.Models.TesztContext _context;
+        private readonly NutriTrack.Models.TesztContext _context;
+
         public FoodItemController(NutriTrack.Models.TesztContext context)
         {
             _context = context;
         }
 
 
+        [Authorize(Roles = "2,3")]
         [HttpGet("GetFoodItems")]
         public async Task<IActionResult> GetAllFoodItems()
         {
-
             try
             {
-                   List<FoodItem> FoodItems = await _context.FoodItems
-                    .Include(f => f.Category)  
+                List<FoodItem> FoodItems = await _context.FoodItems
+                    .Include(f => f.Category)
                     .ToListAsync();
 
                 return Ok(FoodItems);
-
             }
             catch (Exception ex)
             {
@@ -37,22 +35,20 @@ namespace NutriTrack.Controllers
                 {
                     FoodId = -1,
                     Name = $"Hiba történt: {ex.Message}",
-
-
                 });
             }
-
-
         }
 
+        [Authorize(Roles = "3")]
         [HttpPut("UpdateFoodItem/{id}")]
-        public IActionResult UpdateFood(FoodItem food)
+        public async Task<IActionResult> UpdateFood(FoodItem food)
         {
             try
             {
                 if(_context.FoodItems.Any(f => f.FoodId == food.FoodId))
                 {
                     _context.FoodItems.Update(food);
+                    await _context.SaveChangesAsync();
                     return Ok(new { message = "Sikeres frissítés!" });
                 }
                 else
@@ -67,6 +63,7 @@ namespace NutriTrack.Controllers
         }
 
 
+        [Authorize(Roles = "3")]
         [HttpDelete("DeleteFoodItem/{id}")]
         public async Task<IActionResult> DeleteFoodItem(int id)
         {
@@ -89,10 +86,10 @@ namespace NutriTrack.Controllers
 
 
 
+        [Authorize(Roles = "2,3")]
         [HttpGet("FoodItemById/{Id}")]
         public async Task<IActionResult> GetFoodItemById(int Id)
         {
-
             try
             {
                 var foodItem = await _context.FoodItems.FirstOrDefaultAsync(f => f.FoodId == Id);
@@ -106,10 +103,8 @@ namespace NutriTrack.Controllers
                     {
                         FoodId = -1,
                         Name = $"Hiba történt: Nincs ilyen azonosítójú étel",
-
                     });
                 }
-
             }
             catch (Exception ex)
             {
@@ -117,31 +112,25 @@ namespace NutriTrack.Controllers
                 {
                     FoodId = -1,
                     Name = $"Hiba történt: {ex.Message}",
-
                 });
             }
-
         }
 
 
+        [Authorize(Roles = "3")]
         [HttpPost("NewFoodItem")]
-        public IActionResult AddNewFoodItem(FoodItem foodItem)
+        public async Task<IActionResult> AddNewFoodItem(FoodItem foodItem)
         {
-
             try
             {
-
-
                 _context.Add(foodItem);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return Ok("Sikeres rögzítés");
-
             }
             catch (Exception ex)
             {
                 return BadRequest($"Hiba történt a felvétel során: {ex.Message}");
             }
-
         }
 
 

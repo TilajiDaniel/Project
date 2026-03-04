@@ -1,14 +1,9 @@
-﻿using Dapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MySql.Data.MySqlClient;
 using NutriTrack.DTOs;
-using NutriTrack.DTOs.NutriTrack.DTOs;
 using NutriTrack.Models;
 using System.Security.Claims;
-using System.Text.Json;
 
 namespace NutriTrack.Controllers
 {
@@ -16,26 +11,25 @@ namespace NutriTrack.Controllers
     [ApiController]
     public class MealController : ControllerBase
     {
-        public readonly NutriTrack.Models.TesztContext _context;
+        private readonly NutriTrack.Models.TesztContext _context;
+
         public MealController(NutriTrack.Models.TesztContext context)
         {
             _context = context;
         }
+
         private int GetCurrentUserId()
         {
             return int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
         }
-        //[Authorize(Roles = "10, 2")]
+        [Authorize(Roles = "3")]
         [HttpGet("GetAllMeals")]
         public async Task<ActionResult> GetAll()
         {
-
             try
             {
                 List<Meal> Meals = await _context.Meals.ToListAsync();
-
                 return Ok(Meals);
-
             }
             catch (Exception ex)
             {
@@ -43,17 +37,14 @@ namespace NutriTrack.Controllers
                 {
                     MealId = -1,
                     MealType = $"Hiba történt: {ex.Message}",
-
-
                 });
             }
-
         }
 
+        [Authorize(Roles = "2,3")]
         [HttpGet("MealById/{Id}")]
         public async Task<IActionResult> GetMealById(int Id)
         {
-
             try
             {
                 var meal = await _context.Meals.FirstOrDefaultAsync(f => f.MealId == Id);
@@ -86,36 +77,30 @@ namespace NutriTrack.Controllers
 
         [Authorize(Roles = "3")]
         [HttpPost("NewMeal")]
-        public IActionResult AddNewMeal(Meal meal)
+        public async Task<IActionResult> AddNewMeal(Meal meal)
         {
-
             try
             {
-
-
                 _context.Add(meal);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return Ok("Sikeres rögzítés");
-
             }
             catch (Exception ex)
             {
                 return BadRequest($"Hiba történt a felvétel során: {ex.Message}");
             }
-
         }
 
         [Authorize(Roles = "3")]
         [HttpPut("ModifyMeal")]
-        public IActionResult ModifyMeal(Meal meal)
+        public async Task<IActionResult> ModifyMeal(Meal meal)
         {
-
             try
             {
                 if (_context.Meals.Contains(meal))
                 {
                     _context.Update(meal);
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
                     return Ok("Sikeres módosítás!");
                 }
                 else
@@ -125,58 +110,52 @@ namespace NutriTrack.Controllers
             {
                 return BadRequest($"Hiba a módosítás során: {ex.Message}");
             }
-
         }
 
         [Authorize(Roles = "3")]
         [HttpDelete("DelMeal/{Id}")]
-        public IActionResult DeleteMeal(int Id)
+        public async Task<IActionResult> DeleteMeal(int Id)
         {
-
             try
             {
                 if (_context.Meals.Select(f => f.MealId).Contains(Id))
                 {
                     Meal del = _context.Meals.FirstOrDefault(f => f.MealId == Id);
                     _context.Remove(del);
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
                     return Ok("Sikeres törlés!");
                 }
                 else
                 {
-                    return BadRequest("Nincs ilyen felhasználó!");
+                    return BadRequest("Nincs ilyen étel!");
                 }
-
             }
             catch (Exception ex)
             {
                 return BadRequest($"Hiba a törlés közben: {ex.Message}");
             }
-
         }
 
+        [Authorize(Roles = "2,3")]
         [HttpPost]
         public async Task<IActionResult> CreateMeal([FromBody] CreateMealDto dto)
         {
             try
             {
-                // 1. Kinyerjük a bejelentkezett User ID-ját a Tokenből
                 var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
                 if (userIdClaim == null) return Unauthorized("Hiányzó token!");
                 int currentUserId = int.Parse(userIdClaim.Value);
 
-                // 2. Létrehozzuk a fő étkezés rekordot (Meal)
                 var newMeal = new Meal
                 {
-                    UserId = currentUserId, // Itt adjuk hozzá a szerveroldalon!
+                    UserId = currentUserId,
                     MealDate = dto.MealDate,
                     MealType = dto.MealType
                 };
 
                 _context.Meals.Add(newMeal);
-                await _context.SaveChangesAsync(); // Elmentjük, hogy legyen MealId
+                await _context.SaveChangesAsync();
 
-                // 3. Hozzáadjuk a tételeket (MealFoodItems)
                 foreach (var item in dto.FoodItems)
                 {
                     var mfi = new MealFoodItem
@@ -193,10 +172,10 @@ namespace NutriTrack.Controllers
             }
             catch (Exception ex)
             {
-                // Itt a konzolon látni fogod a pontos hibaüzenetet Visual Studioban
                 return StatusCode(500, $"Belső hiba: {ex.Message}");
             }
         }
+        [Authorize(Roles = "2,3")]
         [HttpGet("today")]
         public async Task<IActionResult> GetTodayMeals()
         {
@@ -247,6 +226,7 @@ namespace NutriTrack.Controllers
             }
         }
 
+        [Authorize(Roles = "2,3")]
         [HttpDelete("item/{mealId}/{foodId}")]
         public async Task<IActionResult> DeleteMealItem(int mealId, int foodId)
         {

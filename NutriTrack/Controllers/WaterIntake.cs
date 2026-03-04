@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization; // Új
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NutriTrack.DTOs;
 using NutriTrack.Models;
-using System.Security.Claims; // Új
+using System.Security.Claims;
 
 namespace NutriTrack.Controllers
 {
@@ -13,7 +13,7 @@ namespace NutriTrack.Controllers
     [Route("api/[controller]")]
     public class WaterIntakeController : ControllerBase
     {
-        public readonly NutriTrack.Models.TesztContext _context;
+        private readonly NutriTrack.Models.TesztContext _context;
 
         public WaterIntakeController(NutriTrack.Models.TesztContext context)
         {
@@ -33,7 +33,7 @@ namespace NutriTrack.Controllers
             return 0;
         }
 
-        [Authorize(Roles = "User,Admin")]
+        [Authorize(Roles = "2,3")]
         [HttpGet("today")]
         public async Task<IActionResult> GetTodayWater()
         {
@@ -50,7 +50,7 @@ namespace NutriTrack.Controllers
             return Ok(new { amountMilliliters = totalWater });
         }
 
-        [Authorize(Roles = "User,Admin")]
+        [Authorize(Roles = "2,3")]
         [HttpPost]
         public async Task<IActionResult> AddWater([FromBody] AddWaterDto dto)
         {

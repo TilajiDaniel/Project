@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NutriTrack.DTOs;
-using NutriTrack.DTOs.NutriTrack.DTOs;
 using NutriTrack.Helpers;
 using NutriTrack.Models;
 using System.IdentityModel.Tokens.Jwt;
@@ -100,22 +98,12 @@ namespace NutriTrack.Controllers
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            string roleName;
-            if (user.Privilege == 3)
-            {
-                roleName = "Admin";
-            }
-            else
-            {
-                roleName = "User";
-            }
-
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, roleName)
+                new Claim(ClaimTypes.Role, user.Privilege.ToString())
             };
 
             var token = new JwtSecurityToken(
@@ -129,7 +117,7 @@ namespace NutriTrack.Controllers
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        [Authorize]
+        [Authorize(Roles = "2,3")]
         [HttpPost("complete-setup")]
         public async Task<IActionResult> CompleteSetup([FromBody] FirstSetupDto dto)
         {
@@ -155,7 +143,7 @@ namespace NutriTrack.Controllers
             return Ok(new { message = "Minden adat sikeresen mentve!" });
         }
 
-        [Authorize]
+        [Authorize(Roles = "2,3")]
         [HttpPost("save-daily-goals")]
         public async Task<IActionResult> SaveDailyGoals([FromBody] SaveSettingsDto dto)
         {
@@ -178,6 +166,7 @@ namespace NutriTrack.Controllers
             return Ok(new { message = "Célok sikeresen mentve!" });
         }
 
+        [Authorize(Roles = "2,3")]
         [HttpGet("weekly-stats")]
         public async Task<ActionResult<IEnumerable<WeeklyStatsDto>>> GetWeeklyStats()
         {
