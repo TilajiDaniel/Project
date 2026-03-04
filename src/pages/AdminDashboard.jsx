@@ -103,26 +103,42 @@ const AdminDashboard = () => {
     };
 
     const handleUpdate = async (e) => {
-        e.preventDefault();
-        try {
-            const res = await fetch(`https://localhost:7133/api/FoodItem/UpdateFoodItem/${editingFood.id}`, {
-                method: 'PUT',
-                headers: { 
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(editingFood)
-            });
-
-            if (res.ok) {
-                alert("Sikeres mentés!");
-                setEditingFood(null);
-                fetchFoods();
-            }
-        } catch (err) {
-            alert("Hálózati hiba!");
+    e.preventDefault();
+    console.log('editingFood:', editingFood);  // Ellenőrizd: foodId legyen ott
+    if (!editingFood?.foodId) {
+        alert("Hiányzó Food ID!");
+        return;
+    }
+    try {
+        const res = await fetch(`https://localhost:7133/api/FoodItem/UpdateFoodItem/${editingFood.foodId}`, {
+            method: 'PUT',
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+        name: editingFood.name,
+        categoryId: editingFood.categoryId,
+        caloriesPer100g: editingFood.caloriesPer100g,
+        proteinPer100g: editingFood.proteinPer100g,
+        carbsPer100g: editingFood.carbsPer100g,
+        fatPer100g: editingFood.fatPer100g
+         })
+        });
+        if (!res.ok) {
+            const error = await res.text();
+            console.error('Hiba:', res.status, error);
+            alert(`Hiba: ${res.status} - ${error}`);
+            return;
         }
-    };
+        alert("Sikeres mentés!");
+        setEditingFood(null);
+        fetchAllData();
+    } catch (err) {
+        console.error(err);
+        alert("Hálózati hiba!");
+    }
+};
 
     if (loading) return <div className="loader">Admin adatok betöltése...</div>;
 
@@ -201,6 +217,14 @@ const AdminDashboard = () => {
                         </div>
                         <div className="form-grid">
                             <div className="form-group">
+                                <label>Kategória </label>
+                                <input 
+                                    type="number" 
+                                    value={editingFood.categoryId} 
+                                    onChange={e => setEditingFood({...editingFood, categoryId: Number(e.target.value)})} 
+                                />
+                            </div>
+                            <div className="form-group">
                                 <label>Kalória (100g)</label>
                                 <input 
                                     type="number" 
@@ -247,6 +271,7 @@ const AdminDashboard = () => {
                         <tr>
                             <th>ID</th>
                             <th>Név</th>
+                            <th>Kategória</th>
                             <th>Kalória (100g)</th>
                             <th>Fehérje</th>
                             <th>Szénhidrát</th>
@@ -259,6 +284,7 @@ const AdminDashboard = () => {
                             <tr key={food.foodId}>
                                 <td>{food.foodId}</td>
                                 <td>{food.name}</td>
+                                <td>{food.categoryId}</td>
                                 <td>{food.caloriesPer100g} kcal</td>
                                 <td>{food.proteinPer100g}g</td>
                                 <td>{food.carbsPer100g}g</td>

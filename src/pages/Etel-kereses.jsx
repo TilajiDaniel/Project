@@ -10,6 +10,8 @@ const EtelKereses = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [loading, setLoading] = useState(true);
 
+  const token = localStorage.getItem('token');
+
   // 🌍 Kategóriák
   const categoryNames = {
     1: 'Soups', 2: 'Cooked meals', 3: 'Fast food',
@@ -24,13 +26,22 @@ const EtelKereses = () => {
   }, []);
 
   const loadFoods = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await fetch('https://localhost:7133/api/FoodItem/GetFoodItems');
-      const data = await response.json();
+      const headers = { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            };
+      
+      const response = await fetch('https://localhost:7133/api/FoodItem/GetFoodItems', { headers });
+
  
-      setAllFoods(data || []);
-      setFilteredFoods(data || []);
+      if (response.ok)
+      {
+        const foods = await response.json();
+        setAllFoods(foods);
+      }
+      setFilteredFoods(foods || []);
     } catch (error) {
       setFilteredFoods([]);
     } finally {
