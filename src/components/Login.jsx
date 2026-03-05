@@ -56,7 +56,7 @@ export default function Login() {
             {loading ? 'Belépés...' : 'Bejelentkezés'}
           </button>
         </form>
-        <p><Link to="/register">Regisztráció</Link></p>
+        <p>Nincs fiókod? <Link to="/register">Regisztrálj</Link></p>
       </div>
     </div>
 

@@ -7,6 +7,7 @@ import { Kalorie} from "./pages/Kalorie-kalkulator"
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Login from './components/Login'
 import Register from './components/Register'
+import RegisterSuccess from './components/RegEmail'
 import { About } from "./pages/About"
 import { AddFood } from "./pages/AddFood"
 import { EtelkElrendezese } from './pages/Etelek-elrendezese.jsx'; 
@@ -29,6 +30,7 @@ function AppContent() {
         {/* Nyilvános oldalak */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/register-success" element={<RegisterSuccess />} />
         <Route path="/about" element={<About />} />
         {/* Védett oldalak */}
         <Route 
