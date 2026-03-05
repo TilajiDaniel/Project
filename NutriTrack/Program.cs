@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NutriTrack.Models;
-using NutriTrack.Services;
 using System.Text;
 
 namespace NutriTrack
@@ -27,11 +26,6 @@ namespace NutriTrack
             builder.Configuration.GetSection("JwtSettings").Bind(jwtSettings);
             builder.Services.AddSingleton(jwtSettings);
 
-            // Email Settings Configuration
-            var emailSettings = new EmailSettings();
-            builder.Configuration.GetSection("EmailSettings").Bind(emailSettings);
-            builder.Services.AddSingleton(emailSettings);
-            builder.Services.AddSingleton<EmailService>();
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -95,6 +89,8 @@ namespace NutriTrack
                     }
                 });
             });
+
+
 
             var app = builder.Build();
 

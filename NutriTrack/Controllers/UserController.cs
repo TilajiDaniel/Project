@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using NutriTrack.DTOs;
 using NutriTrack.Helpers;
 using NutriTrack.Models;
-using NutriTrack.Services;
 using System.Security.Claims;
 
 namespace NutriTrack.Controllers
@@ -14,12 +13,10 @@ namespace NutriTrack.Controllers
     public class UserController : ControllerBase
     {
         private readonly TesztContext _context;
-        private readonly EmailService _emailService;
 
-        public UserController(TesztContext context, EmailService emailService)
+        public UserController(TesztContext context)
         {
             _context = context;
-            _emailService = emailService;
         }
 
         [Authorize(Roles = "3")]
@@ -67,27 +64,21 @@ namespace NutriTrack.Controllers
                 if (_context.Users.Any(u => u.Email == dto.Email))
                     return BadRequest("Email már regisztrálva.");
 
-                var verificationToken = Guid.NewGuid().ToString("N");
-
                 var newUser = new User
                 {
                     Username = dto.Username,
                     Email = dto.Email,
                     PasswordHash = PasswordHasher.HashPassword(dto.Password),
-                    Privilege = 1,
-                    CreatedAt = DateTime.Now,
-                    EmailVerificationToken = verificationToken,
-                    VerificationTokenExpiry = DateTime.UtcNow.AddHours(24)
+                    Privilege = 2,
+                    CreatedAt = DateTime.Now
                 };
 
                 _context.Users.Add(newUser);
                 await _context.SaveChangesAsync();
 
-                await _emailService.SendVerificationEmailAsync(newUser.Email, newUser.Username, verificationToken);
-
                 return Ok(new
                 {
-                    message = "Felhasználó létrehozva, megerősítő email elküldve!",
+                    message = "Felhasználó sikeresen létrehozva!",
                     user = new { newUser.UserId, newUser.Username, newUser.Email }
                 });
             }

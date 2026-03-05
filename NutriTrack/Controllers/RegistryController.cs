@@ -1,14 +1,16 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NutriTrack.DTOs;
 using NutriTrack.Helpers;
 using NutriTrack.Models;
-using NutriTrack.Services;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Net.Mail;
 using System.Security.Claims;
 using System.Text;
+
 namespace NutriTrack.Controllers
 {
     [Route("api/[controller]")]
@@ -17,13 +19,13 @@ namespace NutriTrack.Controllers
     {
         private readonly TesztContext _context;
         private readonly Jwtsettings _jwtSettings;
-        private readonly EmailService _emailService;
+        private readonly IConfiguration _configuration;
 
-        public RegistryController(TesztContext context, Jwtsettings jwtSettings, EmailService emailService)
+        public RegistryController(TesztContext context, Jwtsettings jwtSettings, IConfiguration configuration)
         {
             _context = context;
             _jwtSettings = jwtSettings;
-            _emailService = emailService;
+            _configuration = configuration;
         }
 
         [HttpPost("register")]
@@ -39,7 +41,7 @@ namespace NutriTrack.Controllers
 
                 var verificationToken = Guid.NewGuid().ToString("N");
 
-                User newUser = new User
+                var newUser = new User
                 {
                     Username = dto.Username,
                     Email = dto.Email,
@@ -53,11 +55,22 @@ namespace NutriTrack.Controllers
                 _context.Users.Add(newUser);
                 await _context.SaveChangesAsync();
 
-                await _emailService.SendVerificationEmailAsync(newUser.Email, newUser.Username, verificationToken);
+                var baseUrl = _configuration["EmailSettings:AppBaseUrl"] ?? "https://localhost:7133";
+                var verifyLink = $"{baseUrl}/api/Registry/verify-email?token={verificationToken}";
+
+                await SendEmail(
+                    dto.Email,
+                    "NutriTrack - Erősítsd meg az email-címed!",
+                    $"Kedves {dto.Username}!\n\n" +
+                    $"Köszönjük a regisztrációt! Az alábbi linkre kattintva erősítsd meg az email-címedet:\n\n" +
+                    $"{verifyLink}\n\n" +
+                    $"A link 24 óráig érvényes.\n\n" +
+                    $"Üdvözlettel,\nA NutriTrack csapata"
+                );
 
                 return Ok(new
                 {
-                    message = "Sikeres regisztráció! Ellenőrizd az email fiókodat a megerősítéshez.",
+                    message = "Sikeres regisztráció! Ellenőrizd az email fiókodat a megerősítő linkért.",
                     user = new { newUser.UserId, newUser.Username, newUser.Email }
                 });
             }
@@ -73,38 +86,51 @@ namespace NutriTrack.Controllers
             var user = await _context.Users.FirstOrDefaultAsync(u => u.EmailVerificationToken == token);
 
             if (user == null)
-                return BadRequest("Érvénytelen token!");
+                return BadRequest("Érvénytelen vagy már felhasznált token!");
 
             if (user.VerificationTokenExpiry < DateTime.UtcNow)
-                return BadRequest("A token lejárt! Kérj új megerősítő emailt.");
+                return BadRequest("A link lejárt! Kérj új megerősítő emailt a /resend-verification végponton.");
 
             if (user.Privilege > 1)
-                return Ok(new { message = "Ez az email már meg van erősítve!" });
+                return Ok(new { message = "Az email-cím már meg van erősítve!" });
 
             user.Privilege = 2;
             user.EmailVerificationToken = null;
             user.VerificationTokenExpiry = null;
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = "Email sikeresen megerősítve! Most már bejelentkezhetsz." });
+            return Ok(new { message = "Email-cím sikeresen megerősítve! Most már bejelentkezhetsz." });
         }
 
         [HttpPost("resend-verification")]
         public async Task<IActionResult> ResendVerification([FromBody] LoginDTO dto)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Username || u.Username == dto.Username);
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == dto.Username || u.Username == dto.Username);
 
             if (user == null || !PasswordHasher.VerifyPassword(dto.Password, user.PasswordHash))
                 return Unauthorized("Hibás adatok!");
 
             if (user.Privilege > 1)
-                return BadRequest("Ez az email már meg van erősítve!");
+                return BadRequest("Ez az email-cím már meg van erősítve!");
 
-            user.EmailVerificationToken = Guid.NewGuid().ToString("N");
+            var newToken = Guid.NewGuid().ToString("N");
+            user.EmailVerificationToken = newToken;
             user.VerificationTokenExpiry = DateTime.UtcNow.AddHours(24);
             await _context.SaveChangesAsync();
 
-            await _emailService.SendVerificationEmailAsync(user.Email, user.Username, user.EmailVerificationToken);
+            var baseUrl = _configuration["EmailSettings:AppBaseUrl"] ?? "https://localhost:7133";
+            var verifyLink = $"{baseUrl}/api/Registry/verify-email?token={newToken}";
+
+            await SendEmail(
+                user.Email,
+                "NutriTrack - Új megerősítő link",
+                $"Kedves {user.Username}!\n\n" +
+                $"Az alábbi linkre kattintva erősítsd meg az email-címedet:\n\n" +
+                $"{verifyLink}\n\n" +
+                $"A link 24 óráig érvényes.\n\n" +
+                $"Üdvözlettel,\nA NutriTrack csapata"
+            );
 
             return Ok(new { message = "Megerősítő email újra elküldve!" });
         }
@@ -114,8 +140,7 @@ namespace NutriTrack.Controllers
         {
             try
             {
-                var user = await _context.Users
-                    .FirstOrDefaultAsync(u => u.Username == dto.Username);
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == dto.Username);
 
                 if (user == null || !PasswordHasher.VerifyPassword(dto.Password, user.PasswordHash))
                     return Unauthorized("Hibás felhasználónév vagy jelszó!");
@@ -127,7 +152,7 @@ namespace NutriTrack.Controllers
 
                 return Ok(new
                 {
-                    token = token,
+                    token,
                     user = new { user.UserId, user.Username, user.Email, user.Privilege }
                 });
             }
@@ -146,8 +171,8 @@ namespace NutriTrack.Controllers
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Privilege.ToString())
+                new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
+                new Claim(ClaimTypes.Role, user.Privilege.ToString() ?? "1")
             };
 
             var token = new JwtSecurityToken(
@@ -165,7 +190,7 @@ namespace NutriTrack.Controllers
         [HttpPost("complete-setup")]
         public async Task<IActionResult> CompleteSetup([FromBody] FirstSetupDto dto)
         {
-            var userIdString = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!int.TryParse(userIdString, out int userId)) return Unauthorized();
 
             var user = await _context.Users.FindAsync(userId);
@@ -174,14 +199,12 @@ namespace NutriTrack.Controllers
             user.HeightCm = (int)dto.Height;
             user.WeightKg = (decimal)dto.CurrentWeight;
 
-            var targetGoal = new WeightGoal
+            _context.WeightGoals.Add(new WeightGoal
             {
                 UserId = userId,
                 TargetWeight = (decimal)dto.TargetWeight,
                 StartDate = DateTime.UtcNow
-            };
-
-            _context.WeightGoals.Add(targetGoal);
+            });
 
             await _context.SaveChangesAsync();
             return Ok(new { message = "Minden adat sikeresen mentve!" });
@@ -194,7 +217,6 @@ namespace NutriTrack.Controllers
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!int.TryParse(userIdString, out int userId)) return Unauthorized();
 
-            // Megnézzük, van-e már beállítása a usernek
             var settings = await _context.UserSettings.FirstOrDefaultAsync(s => s.UserId == userId);
 
             if (settings == null)
@@ -204,8 +226,6 @@ namespace NutriTrack.Controllers
             }
 
             settings.DailyCalorieGoal = dto.DailyCalories;
-            // Ide a napi viznek kerul majd a beállítása
-
             await _context.SaveChangesAsync();
             return Ok(new { message = "Célok sikeresen mentve!" });
         }
@@ -214,21 +234,16 @@ namespace NutriTrack.Controllers
         [HttpGet("weekly-stats")]
         public async Task<ActionResult<IEnumerable<WeeklyStatsDto>>> GetWeeklyStats()
         {
-            // 1. Felhasználó azonosítása 
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!int.TryParse(userIdString, out int userId)) return Unauthorized();
 
             var endDate = DateTime.Today;
             var startDate = endDate.AddDays(-6);
 
-            // 2. Felhasználói célok lekérése (user_settings tábla)
-            var settings = await _context.UserSettings
-                .FirstOrDefaultAsync(s => s.UserId == userId);
-
+            var settings = await _context.UserSettings.FirstOrDefaultAsync(s => s.UserId == userId);
             int calorieGoal = settings?.DailyCalorieGoal ?? 2000;
             int waterGoal = settings?.DailyWaterGoalMl ?? 2500;
 
-            // 3. Kalória összesítés (meals + meal_food_items + food_items)
             var consumedCalories = await _context.Meals
                 .Where(m => m.UserId == userId && m.MealDate >= startDate && m.MealDate <= endDate)
                 .SelectMany(m => m.MealFoodItems)
@@ -236,12 +251,10 @@ namespace NutriTrack.Controllers
                 .Select(g => new
                 {
                     Date = g.Key,
-                    // Gramm / 100 * Kalória per 100g
                     TotalCalories = g.Sum(mfi => (mfi.QuantityGrams / 100.0) * mfi.Food.CaloriesPer100g)
                 })
                 .ToListAsync();
 
-            // 4. Vízfogyasztás összesítés (water_intake_log tábla)
             var consumedWater = await _context.WaterIntakeLogs
                 .Where(w => w.UserId == userId && w.EntryDate >= startDate && w.EntryDate <= endDate)
                 .GroupBy(w => w.EntryDate)
@@ -252,7 +265,6 @@ namespace NutriTrack.Controllers
                 })
                 .ToListAsync();
 
-            // 5. Adatok egyesítése a heti struktúrába
             var result = new List<WeeklyStatsDto>();
             for (var date = startDate; date <= endDate; date = date.AddDays(1))
             {
@@ -270,6 +282,27 @@ namespace NutriTrack.Controllers
             }
 
             return Ok(result.OrderBy(r => r.Date));
+        }
+
+        private async Task SendEmail(string mailAddressTo, string subject, string body)
+        {
+            var host = _configuration["EmailSettings:Host"] ?? "smtp.gmail.com";
+            var port = int.Parse(_configuration["EmailSettings:Port"] ?? "587");
+            var fromAddress = _configuration["EmailSettings:FromAddress"] ?? string.Empty;
+            var appPassword = _configuration["EmailSettings:AppPassword"] ?? string.Empty;
+
+            using var mail = new MailMessage();
+            mail.From = new MailAddress(fromAddress, "NutriTrack");
+            mail.To.Add(mailAddressTo);
+            mail.Subject = subject;
+            mail.Body = body;
+            mail.IsBodyHtml = false;
+
+            using var smtp = new SmtpClient(host, port);
+            smtp.Credentials = new NetworkCredential(fromAddress, appPassword);
+            smtp.EnableSsl = true;
+
+            await smtp.SendMailAsync(mail);
         }
     }
 }
