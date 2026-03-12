@@ -104,11 +104,24 @@ const AdminDashboard = () => {
 
     const handleUpdate = async (e) => {
     e.preventDefault();
-    console.log('editingFood:', editingFood);  // Ellenőrizd: foodId legyen ott
-    if (!editingFood?.foodId) {
-        alert("Hiányzó Food ID!");
-        return;
-    }
+    
+    const payload = {
+        foodId: Number(editingFood.foodId),
+        name: editingFood.name.trim(),
+        categoryId: Number(editingFood.categoryId),
+        caloriesPer100g: Number(editingFood.caloriesPer100g) || 0,
+        proteinPer100g: Number(editingFood.proteinPer100g) || 0,
+        carbsPer100g: Number(editingFood.carbsPer100g) || 0,
+        fatPer100g: Number(editingFood.fatPer100g) || 0,
+        // SWAGGER szerinti kötelező mezők:
+        category: {
+            categoryId: Number(editingFood.categoryId),
+            categoryName: "Frissített kategória",
+            description: "Admin által frissítve"
+        },
+        mealFoodItems: [] // Üres tömb!
+    };
+
     try {
         const res = await fetch(`https://localhost:7133/api/FoodItem/UpdateFoodItem/${editingFood.foodId}`, {
             method: 'PUT',
@@ -116,29 +129,23 @@ const AdminDashboard = () => {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-        name: editingFood.name,
-        categoryId: editingFood.categoryId,
-        caloriesPer100g: editingFood.caloriesPer100g,
-        proteinPer100g: editingFood.proteinPer100g,
-        carbsPer100g: editingFood.carbsPer100g,
-        fatPer100g: editingFood.fatPer100g
-         })
+            body: JSON.stringify(payload)
         });
+
         if (!res.ok) {
-            const error = await res.text();
-            console.error('Hiba:', res.status, error);
-            alert(`Hiba: ${res.status} - ${error}`);
+            const errorText = await res.text();
+            alert(`❌ Hiba: ${res.status} - ${errorText}`);
             return;
         }
-        alert("Sikeres mentés!");
+
+        alert("✅ SIKERES FRISSÍTÉS!");
         setEditingFood(null);
         fetchAllData();
     } catch (err) {
-        console.error(err);
-        alert("Hálózati hiba!");
+        alert("❌ Hálózati hiba!");
     }
 };
+
 
     if (loading) return <div className="loader">Admin adatok betöltése...</div>;
 
@@ -217,12 +224,7 @@ const AdminDashboard = () => {
                         </div>
                         <div className="form-grid">
                             <div className="form-group">
-                                <label>Kategória </label>
-                                <input 
-                                    type="number" 
-                                    value={editingFood.categoryId} 
-                                    onChange={e => setEditingFood({...editingFood, categoryId: Number(e.target.value)})} 
-                                />
+                                
                             </div>
                             <div className="form-group">
                                 <label>Kalória (100g)</label>

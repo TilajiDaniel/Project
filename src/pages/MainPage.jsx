@@ -15,10 +15,17 @@ const Main = () => {
     weight: '',
     targetWeight: ''
   });
-     useEffect(() => {
+
+  useEffect(() => {
     const checkFirstLogin = async () => {
       const token = localStorage.getItem('token');
       if (!token) return;
+
+      // Ellenőrizzük, hogy már járt-e itt
+      const hasVisited = localStorage.getItem('hasVisitedMain');
+      if (hasVisited === 'true') {
+        return; // Már járt itt, ne mutassa
+      }
 
       try {
         const response = await fetch('https://localhost:7133/api/User/setup-complete', {
@@ -40,6 +47,9 @@ const Main = () => {
         console.error('Setup ellenőrzés hiba:', error);
         setShowFirstSetup(true);
       }
+
+      // Megjelöljük, hogy már járt itt
+      localStorage.setItem('hasVisitedMain', 'true');
     };
 
     checkFirstLogin();
@@ -79,7 +89,6 @@ const Main = () => {
       targetWeight: parseFloat(setupData.targetWeight)
     };
 
-    // Validáció
     if (!payload.height || !payload.currentWeight || !payload.targetWeight) {
       alert('Minden mező kitöltése kötelező!');
       return;
@@ -112,7 +121,7 @@ const Main = () => {
   return (
     <Layout>
       <div className="page-content">
-        {/* MODÁLIS ABLAK */}
+        {/* MODÁLIS ABLAK - CSAK ELSŐ BELÉPÉSNÉL */}
         {showFirstSetup && (
           <div className="modal-overlay" style={{
             position: 'fixed',
@@ -198,6 +207,7 @@ const Main = () => {
 
             <div className="content-grid">
               <div className="main-panel">🚀 Kezdd a napod! Válassz menüpontot</div>
+              
               <div className="tall-panel">
                 <div className="main-panel">💡 Gyors hozzáférés</div>
                 <div className="main-panel">
