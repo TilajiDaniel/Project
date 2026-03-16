@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import Layout from '../components/Layout';
 import '../styles/Kalorie-kalkulator.css';
 
 const Kalorie = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     age: '',
     gender: 'male',
@@ -11,6 +15,12 @@ const Kalorie = () => {
     activity: 'sedentary'
   });
   const [results, setResults] = useState(null);
+
+  useEffect(() => {
+    if (!location.state || !location.state.fromMain) {
+      navigate('/MainPage');
+    }
+  }, [location, navigate]);
 
   const activityOptions = [
     { value: 'sedentary', label: 'Sedentary (little or no exercise)' },
@@ -57,41 +67,43 @@ const Kalorie = () => {
     });
   };
   const saveDailyGoal = async (calories) => {
-  const token = localStorage.getItem('token');
-  
-  if (!token) {
-    alert("Kérjük, jelentkezzen be a cél mentéséhez!");
-    return;
-  }
-
-  const calculatedWater = Math.round(formData.weight * 35);
-
-  try {
-    const response = await fetch('https://localhost:7133/api/Registry/save-daily-goals', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ 
-        dailyCalories: calories, 
-        dailyWater: calculatedWater
-      })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.text();
-      throw new Error(errorData || "Hiba a mentés során");
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      alert("Kérjük, jelentkezzen be a cél mentéséhez!");
+      return;
     }
 
-    alert(`Sikeresen beállítva: ${calories} kcal és ${calculatedWater} ml víz naponta!`);
-    setResults(null); 
-  } catch (err) {
-    console.error("Mentési hiba:", err);
-    alert("Nem sikerült elmenteni a célt: " + err.message);
-  }
-};
-33
+    const calculatedWater = Math.round(formData.weight * 35);
+
+    try {
+      const response = await fetch('https://localhost:7133/api/Registry/save-daily-goals', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ 
+          dailyCalories: calories, 
+          dailyWater: calculatedWater
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Hiba a mentés során");
+      }
+
+      localStorage.setItem('isCalorieDone', 'true');
+
+      alert(`Sikeresen beállítva: ${calories} kcal! Most visszairányítunk a főoldalra.`);
+      
+      
+    } catch (err) {
+      console.error("Mentési hiba:", err);
+      alert("Nem sikerült elmenteni a célt.");
+    }
+  };
+
   return (
     <Layout>
     <div className="container">
