@@ -5,7 +5,6 @@ import Layout from '../components/Layout';
 import '../styles/Kalorie-kalkulator.css';
 
 const Kalorie = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const [formData, setFormData] = useState({
     age: '',
@@ -16,11 +15,7 @@ const Kalorie = () => {
   });
   const [results, setResults] = useState(null);
 
-  useEffect(() => {
-    if (!location.state || !location.state.fromMain) {
-      navigate('/MainPage');
-    }
-  }, [location, navigate]);
+
 
   const activityOptions = [
     { value: 'sedentary', label: 'Sedentary (little or no exercise)' },

@@ -22,11 +22,40 @@ const faqData = [
     { q: "Mennyi vizet igyak naponta?", a: "A rendszerünk testsúlykilogrammonként kb. 35ml vízzel kalkulál." }
 ];
     // Állapotok betöltése
-    const [isProfileDone, setIsProfileDone] = useState(() => localStorage.getItem('isProfileDone') === 'true');
-    const [isCalorieDone, setIsCalorieDone] = useState(() => localStorage.getItem('isCalorieDone') === 'true');
-    const [isFinalized, setIsFinalized] = useState(() => localStorage.getItem('isSetupFinalized') === 'true');
+    // ... állapotaid a Main komponensen belül
+const [isProfileDone, setIsProfileDone] = useState(false);
+const [isCalorieDone, setIsCalorieDone] = useState(false);
+const [isFinalized, setIsFinalized] = useState(false);
 
-    const isAllComplete = isProfileDone && isCalorieDone;
+useEffect(() => {
+    const fetchUserStatus = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        try {
+            const response = await fetch('https://localhost:7133/api/Registry/get-setup-status', {
+                method: 'GET',
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json' 
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                // A backend Setup_completion értéke alapján állítjuk a state-et:
+                // 0: semmi, 1: profil kész, 2: kalkulátor kész, 3: befejezve
+                setIsProfileDone(data.setupCompletion >= 1);
+                setIsCalorieDone(data.setupCompletion >= 2);
+                setIsFinalized(data.setupCompletion >= 3);
+            }
+        } catch (error) {
+            console.error("Hiba az állapot lekérésekor:", error);
+        }
+    };
+
+    fetchUserStatus();
+}, []);
 
     useEffect(() => {
         const tips = ['Írd fel minden étkezést!', 'Figyelj a Portion méretekre!', 'Igyál elég vizet!', 'Mozogj naponta!'];
@@ -41,11 +70,17 @@ const faqData = [
     const handleSetupSubmit = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem('token');
+
+        const payload = {
+      height: parseFloat(setupData.height),
+      currentWeight: parseFloat(setupData.weight),
+      targetWeight: parseFloat(setupData.targetWeight)
+      };
         try {
             const response = await fetch('https://localhost:7133/api/Registry/complete-setup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify(setupData)
+                body: JSON.stringify(payload)
             });
             if (response.ok) {
                 setIsProfileDone(true);
@@ -56,11 +91,26 @@ const faqData = [
         } catch (error) { alert('Hiba történt!'); }
     };
 
-    const handleFinalize = () => {
-        setIsFinalized(true);
-        localStorage.setItem('isSetupFinalized', 'true');
-        alert("Minden kész!");
-    };
+    const handleFinalize = async () => {
+    const token = localStorage.getItem('token');
+    try {
+        const response = await fetch('https://localhost:7133/api/Registry/BefejezesGomb', {
+            method: 'PUT', // Fontos, hogy PUT legyen, mert módosítunk
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            setIsFinalized(true);
+            alert("Sikeres befejezés!");
+        }
+    } catch (error) {
+        console.error("Hiba:", error);
+    }
+};
+    
 
     return (
     <Layout>
@@ -180,7 +230,7 @@ const faqData = [
                                 <input type="number" value={setupData.targetWeight} onChange={(e) => setSetupData({...setupData, targetWeight: e.target.value})} required />
                             </div>
                             <button type="submit" className="step-button calc" style={{width: '100%', marginTop: '10px'}}>Mentés</button>
-                            <button type="button" onClick={() => setShowFirstSetup(false)} style={{width: '100%', marginTop: '10px', border: 'none', background: 'none'}}>Mégse</button>
+                            <button type="button" onClick={() => setShowFirstSetup(false)} style={{width: '100%', marginTop: '10px', border: 'none', background: 'none', color: 'green'}}>Mégse</button>
                         </form>
                     </div>
                 </div>

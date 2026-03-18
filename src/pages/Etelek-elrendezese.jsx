@@ -145,7 +145,6 @@ const EtelkElrendezese = () => {
 
                   <div className="food-details">
                     <div className="nutrient-row">
-                      <span>⚖️</span>
                       <span>{meal.quantityGrams}g</span>
                     </div>
                   </div>
