@@ -137,7 +137,7 @@ namespace NutriTrack.Controllers
         }
 
         [Authorize(Roles = "2,3")]
-        [HttpPost]
+        [HttpPost("CreateMeal")]
         public async Task<IActionResult> CreateMeal([FromBody] CreateMealDto dto)
         {
             try

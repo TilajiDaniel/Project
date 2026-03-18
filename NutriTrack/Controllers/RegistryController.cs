@@ -286,7 +286,56 @@ namespace NutriTrack.Controllers
             await _context.SaveChangesAsync();
             return Ok(new { message = "Célok sikeresen mentve!" });
         }
+        //prior 3
+        [Authorize(Roles = "2,3")]
+        [HttpPut("BefejezesGomb")]
+        public async Task<IActionResult> Befejezes()
+        {
+            try
+            {
+                var userIdString = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
+                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+                {
+                    return Unauthorized("Érvénytelen token vagy azonosító.");
+                }
+
+                var userInDb = await _context.Users.FindAsync(userId);
+
+                if (userInDb == null)
+                {
+                    return NotFound("A felhasználó nem található az adatbázisban.");
+                }
+
+                userInDb.Setup_completion = 3;
+
+                _context.Users.Update(userInDb);
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "A beállítási folyamat sikeresen lezárult!",
+                    currentStatus = userInDb.Setup_completion
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Szerver hiba történt: {ex.Message}");
+            }
+        }
+        [Authorize(Roles = "2,3")]
+        [HttpGet("get-setup-status")]
+        public async Task<IActionResult> GetSetupStatus()
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdString, out int userId)) return Unauthorized();
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return NotFound();
+
+            return Ok(new { setupCompletion = user.Setup_completion });
+        }
         [Authorize(Roles = "2,3")]
         [HttpGet("weekly-stats")]
         public async Task<ActionResult<IEnumerable<WeeklyStatsDto>>> GetWeeklyStats()
