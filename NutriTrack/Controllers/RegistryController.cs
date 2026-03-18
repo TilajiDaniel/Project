@@ -144,7 +144,7 @@ namespace NutriTrack.Controllers
             user.VerificationTokenExpiry = DateTime.UtcNow.AddHours(24);
             await _context.SaveChangesAsync();
 
-            var baseUrl = _configuration["EmailSettings:AppBaseUrl"] ?? "http://localhost:5173";
+            var baseUrl = _configuration["EmailSettings:AppBaseUrl"] ?? "https://localhost:7133";
             var verifyLink = $"{baseUrl}/api/Registry/verify-email?token={newToken}";
 
             await SendEmail(
