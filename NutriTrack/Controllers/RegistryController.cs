@@ -61,11 +61,35 @@ namespace NutriTrack.Controllers
                 await SendEmail(
                     dto.Email,
                     "NutriTrack - Erősítsd meg az email-címed!",
-                    $"Kedves {dto.Username}!\n\n" +
-                    $"Köszönjük a regisztrációt! Az alábbi linkre kattintva erősítsd meg az email-címedet:\n\n" +
-                    $"{verifyLink}\n\n" +
-                    $"A link 24 óráig érvényes.\n\n" +
-                    $"Üdvözlettel,\nA NutriTrack csapata"
+                    $"""
+                    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#f9f9f9;padding:20px;">
+                        <div style="background:#2C3E50;padding:24px;border-radius:8px 8px 0 0;text-align:center;">
+                            <h1 style="color:white;margin:0;font-size:26px;">NutriTrack</h1>
+                        </div>
+                        <div style="background:white;padding:36px;border-radius:0 0 8px 8px;border:1px solid #e0e0e0;">
+                            <h2 style="color:#2C3E50;margin-top:0;">Email-cím megerősítése</h2>
+                            <p style="color:#555;">Kedves <strong>{dto.Username}</strong>!</p>
+                            <p style="color:#555;">Köszönjük a regisztrációt! A fiókod aktiválásához kattints az alábbi gombra:</p>
+                            <div style="text-align:center;margin:32px 0;">
+                                <a href="{verifyLink}"
+                                   style="background:#27AE60;color:white;padding:14px 32px;
+                                          text-decoration:none;border-radius:6px;font-size:16px;
+                                          font-weight:bold;display:inline-block;">
+                                    Email megerősítése
+                                </a>
+                            </div>
+                            <p style="color:#888;font-size:13px;">
+                                A gomb 24 óráig érvényes.<br/>
+                                Ha nem te regisztráltál, hagyhatod figyelmen kívül ezt az emailt.
+                            </p>
+                            <hr style="border:none;border-top:1px solid #eee;margin:24px 0;"/>
+                            <p style="color:#aaa;font-size:12px;">
+                                Ha a gomb nem működik, másold be ezt a linket a böngészőbe:<br/>
+                                <a href="{verifyLink}" style="color:#3498DB;word-break:break-all;">{verifyLink}</a>
+                            </p>
+                        </div>
+                    </div>
+                    """
                 );
 
                 return Ok(new
@@ -99,7 +123,8 @@ namespace NutriTrack.Controllers
             user.VerificationTokenExpiry = null;
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = "Email-cím sikeresen megerősítve! Most már bejelentkezhetsz." });
+            var frontendUrl = _configuration["EmailSettings:FrontendBaseUrl"] ?? "http://localhost:5173";
+            return Redirect($"{frontendUrl}/login");
         }
 
         [HttpPost("resend-verification")]
@@ -119,17 +144,41 @@ namespace NutriTrack.Controllers
             user.VerificationTokenExpiry = DateTime.UtcNow.AddHours(24);
             await _context.SaveChangesAsync();
 
-            var baseUrl = _configuration["EmailSettings:AppBaseUrl"] ?? "https://localhost:7133";
+            var baseUrl = _configuration["EmailSettings:AppBaseUrl"] ?? "http://localhost:5173";
             var verifyLink = $"{baseUrl}/api/Registry/verify-email?token={newToken}";
 
             await SendEmail(
                 user.Email,
                 "NutriTrack - Új megerősítő link",
-                $"Kedves {user.Username}!\n\n" +
-                $"Az alábbi linkre kattintva erősítsd meg az email-címedet:\n\n" +
-                $"{verifyLink}\n\n" +
-                $"A link 24 óráig érvényes.\n\n" +
-                $"Üdvözlettel,\nA NutriTrack csapata"
+                $"""
+                <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#f9f9f9;padding:20px;">
+                    <div style="background:#2C3E50;padding:24px;border-radius:8px 8px 0 0;text-align:center;">
+                        <h1 style="color:white;margin:0;font-size:26px;">NutriTrack</h1>
+                    </div>
+                    <div style="background:white;padding:36px;border-radius:0 0 8px 8px;border:1px solid #e0e0e0;">
+                        <h2 style="color:#2C3E50;margin-top:0;">Email-cím megerősítése</h2>
+                        <p style="color:#555;">Kedves <strong>{user.Username}</strong>!</p>
+                        <p style="color:#555;">Új megerősítő linket igényeltél. Kattints az alábbi gombra:</p>
+                        <div style="text-align:center;margin:32px 0;">
+                            <a href="{verifyLink}"
+                               style="background:#27AE60;color:white;padding:14px 32px;
+                                      text-decoration:none;border-radius:6px;font-size:16px;
+                                      font-weight:bold;display:inline-block;">
+                                Email megerősítése
+                            </a>
+                        </div>
+                        <p style="color:#888;font-size:13px;">
+                            A gomb 24 óráig érvényes.<br/>
+                            Ha nem te kérted ezt, hagyhatod figyelmen kívül.
+                        </p>
+                        <hr style="border:none;border-top:1px solid #eee;margin:24px 0;"/>
+                        <p style="color:#aaa;font-size:12px;">
+                            Ha a gomb nem működik, másold be ezt a linket a böngészőbe:<br/>
+                            <a href="{verifyLink}" style="color:#3498DB;word-break:break-all;">{verifyLink}</a>
+                        </p>
+                    </div>
+                </div>
+                """
             );
 
             return Ok(new { message = "Megerősítő email újra elküldve!" });
@@ -304,7 +353,7 @@ namespace NutriTrack.Controllers
             mail.To.Add(mailAddressTo);
             mail.Subject = subject;
             mail.Body = body;
-            mail.IsBodyHtml = false;
+            mail.IsBodyHtml = true;
 
             using var smtp = new SmtpClient(host, port);
             smtp.Credentials = new NetworkCredential(fromAddress, appPassword);
