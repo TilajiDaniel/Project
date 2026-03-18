@@ -231,6 +231,11 @@ public partial class TesztContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("verification_token_expiry");
 
+            entity.Property(e => e.Setup_completion)
+                .HasDefaultValueSql("'NULL'")
+                .HasColumnType("int(11)")
+                .HasColumnName("setup_completion");
+
             entity.HasOne(d => d.PrivilegeNavigation).WithMany(p => p.Users)
                 .HasPrincipalKey(p => p.Level)
                 .HasForeignKey(d => d.Privilege)

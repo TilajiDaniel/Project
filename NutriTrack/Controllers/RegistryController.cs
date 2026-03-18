@@ -186,6 +186,7 @@ namespace NutriTrack.Controllers
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+        //prior 1
         [Authorize(Roles = "2,3")]
         [HttpPost("complete-setup")]
         public async Task<IActionResult> CompleteSetup([FromBody] FirstSetupDto dto)
@@ -206,10 +207,12 @@ namespace NutriTrack.Controllers
                 StartDate = DateTime.UtcNow
             });
 
+            user.Setup_completion = 1;
             await _context.SaveChangesAsync();
             return Ok(new { message = "Minden adat sikeresen mentve!" });
         }
 
+        //prior 2
         [Authorize(Roles = "2,3")]
         [HttpPost("save-daily-goals")]
         public async Task<IActionResult> SaveDailyGoals([FromBody] SaveSettingsDto dto)
@@ -226,6 +229,11 @@ namespace NutriTrack.Controllers
             }
 
             settings.DailyCalorieGoal = dto.DailyCalories;
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user != null)
+                user.Setup_completion = 2;
+
             await _context.SaveChangesAsync();
             return Ok(new { message = "Célok sikeresen mentve!" });
         }

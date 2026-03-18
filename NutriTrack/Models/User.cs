@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MimeKit.Tnef;
+using System;
 using System.Collections.Generic;
 
 namespace NutriTrack.Models;
@@ -24,6 +25,8 @@ public partial class User
     public string? EmailVerificationToken { get; set; }
 
     public DateTime? VerificationTokenExpiry { get; set; }
+
+    public int? Setup_completion { get; set; }
 
     public virtual ICollection<Meal>? Meals { get; set; } = new List<Meal>();
 
