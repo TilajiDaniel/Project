@@ -13,7 +13,6 @@ const EtelkElrendezese = () => {
   const authToken = localStorage.getItem('token');
   const navigate = useNavigate();
 
-  // 📡 MAI ÉTELEK LEKÉRÉSE
   useEffect(() => {
     fetchTodayMeals();
   }, []);
@@ -42,14 +41,13 @@ const EtelkElrendezese = () => {
         setError('Nem sikerült betölteni a mai ételeket');
       }
     } catch (error) {
-      console.error('🚫 Hiba meals lekérdezés:', error);
+      console.error(' Hiba meals lekérdezés:', error);
       setError('Hálózati hiba történt');
     } finally {
       setLoading(false);
     }
   };
 
-  // 🗑️ ÉTEL TÖRLÉSE (mealId + foodId)
   const deleteMealItem = async (mealId, foodId) => {
     if (!confirm('Biztosan törölni szeretnéd ezt az ételt?')) return;
 
@@ -66,26 +64,25 @@ const EtelkElrendezese = () => {
       );
 
       if (response.ok) {
-        alert('✅ Ételt töröltük!');
+        alert('Ételt töröltük!');
         fetchTodayMeals(); // Frissítés
       } else {
         throw new Error('Törlés sikertelen');
       }
     } catch (error) {
-      console.error('🚫 Törlési hiba:', error);
-      alert('❌ Törlés sikertelen!');
+      console.error(' Törlési hiba:', error);
+      alert(' Törlés sikertelen!');
     } finally {
       setLoading(false);
     }
   };
 
-  // Loading állapot
   if (loading) {
     return (
       <Layout>
         <div className="container">
           <div className="main-content">
-            <div className="title">🍽️ Mai ételek</div>
+            <div className="title"> Mai ételek</div>
             <div className="loading">Betöltés...</div>
           </div>
         </div>
@@ -93,25 +90,34 @@ const EtelkElrendezese = () => {
     );
   }
 
+const groupedMeals = meals.reduce((acc, meal) => {
+  const type = meal.mealType; 
+  if (!acc[type]) acc[type] = [];
+  acc[type].push(meal);
+  return acc;
+}, {});
+
+const mealOrder = ["Reggeli", "Ebéd", "Vacsora", "Uzsonna/Nasi"];
+
   return (
     <Layout>
       <div className="container">
         <div className="main-content">
-          <div className="title">🍽️ Mai ételek</div>
+          <div className="title"> Mai ételek</div>
 
           {/* ÖSSZESÍTŐ KÁRTYÁK */}
           {meals.length > 0 && (
             <div className="summary-cards">
               <div className="summary-card">
-                <span>📊 Összes kalória</span>
+                <span> Összes kalória</span>
                 <strong>{totalCalories.toLocaleString()} kcal</strong>
               </div>
               <div className="summary-card">
-                <span>💪 Összes fehérje</span>
+                <span> Összes fehérje</span>
                 <strong>{totalProtein.toFixed(1)}g</strong>
               </div>
               <div className="summary-card">
-                <span>🍽️ Ételek száma</span>
+                <span> Ételek száma</span>
                 <strong>{meals.length}</strong>
               </div>
             </div>
@@ -125,42 +131,47 @@ const EtelkElrendezese = () => {
               <div className="empty-icon">🍽️</div>
               <p>Nincs még ma elmentett étel</p>
               <button className="primary-btn" onClick={fetchTodayMeals}>
-                🔄 Frissítés
+                 Frissítés
               </button>
             </div>
           ) : (
             /* ÉTELEK RÁCS */
-            <div className="foods-grid">
-              {meals.map((meal) => (
-                <div key={meal.itemKey} className="food-card">
-                  <div className="food-header">
-                    <div className="meal-type-badge">
-                      {meal.mealType}
-                    </div>
-                    <h4>{meal.foodName}</h4>
-                    <span className="calories-badge">
-                      {meal.calories} kcal
-                    </span>
-                  </div>
+            <div className="meal-columns-container">
+  {mealOrder.map((type) => (
+    // Csak akkor jelenítjük meg az oszlopot, ha van benne étel
+    groupedMeals[type] && groupedMeals[type].length > 0 && (
+      <div key={type} className="meal-column">
+        <h3 className="column-title">{type}</h3>
+        
+        <div className="foods-stack">
+          {groupedMeals[type].map((meal) => (
+            <div key={meal.itemKey} className="food-card">
+              <div className="food-header">
+                <h4>{meal.foodName}</h4>
+                <span className="calories-badge">{meal.calories} kcal</span>
+              </div>
 
-                  <div className="food-details">
-                    <div className="nutrient-row">
-                      <span>{meal.quantityGrams}g</span>
-                    </div>
-                  </div>
-
-                  <div className="food-actions">
-                    <button 
-  className="delete-btn"
-  onClick={() => deleteMealItem(meal.mealId, meal.foodId)} // Most már lesz meal.foodId
-  disabled={loading}
->
-  🗑️ Törlés
-</button>
-                  </div>
+              <div className="food-details">
+                <div className="nutrient-row">
+                  <span>{meal.quantityGrams}g</span>
                 </div>
-              ))}
+              </div>
+
+              <div className="food-actions">
+                <button 
+                  className="delete-btn"
+                  onClick={() => deleteMealItem(meal.mealId, meal.foodId)} 
+                  disabled={loading}>
+                  Törlés
+                </button>
+              </div>
             </div>
+          ))}
+        </div>
+      </div>
+    )
+  ))}
+</div>
           )}
 
           {/* AKCIÓ GOMBOK */}

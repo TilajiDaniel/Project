@@ -128,7 +128,7 @@ useEffect(() => {
                     
                     {/* Setup Szekció */}
                     <div className="main-panel-card">
-                        <h2 style={{ marginBottom: '30px' }}>🏁 Kezdő lépések</h2>
+                        <h2 style={{ marginBottom: '30px' }}> Kezdő lépések</h2>
                         <div className="stepper-container">
                             <button 
                                 className="step-button profile"
@@ -161,14 +161,14 @@ useEffect(() => {
 
                         {isFinalized && (
                             <div className="success-message">
-                                <p>✨ Gratulálunk! A rendszer készen áll a használatra.</p>
+                                <p> Gratulálunk! A rendszer készen áll a használatra.</p>
                             </div>
                         )}
                     </div>
 
                     {/* Rólunk Szekció - Ide került, hogy kitöltse a teret */}
                     <div className="about-container">
-            <h2><span>🍎</span> Küldetésünk</h2>
+            <h2> Küldetésünk</h2>
             <div className="about-content">
                 <p>Az Ételnapló nem csak egy kalóriaszámláló...</p>
             </div>
@@ -191,7 +191,7 @@ useEffect(() => {
 
                     {/* GYIK Accordion */}
                     <div className="faq-container" style={{ marginTop: '0' }}>
-                        <h3 style={{ marginBottom: '20px', fontSize: '1.3rem' }}>❓ Segítség</h3>
+                        <h3 style={{ marginBottom: '20px', fontSize: '1.3rem' }}> Segítség</h3>
                         <div className="faq-accordion">
                             {faqData.map((item, index) => (
                                 <div key={index} className={`faq-item ${activeFaq === index ? 'active' : ''}`}>

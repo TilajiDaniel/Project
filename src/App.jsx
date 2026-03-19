@@ -8,13 +8,12 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Login from './components/Login'
 import Register from './components/Register'
 import RegisterSuccess from './components/RegEmail'
-import { About } from "./pages/About"
 import { AddFood } from "./pages/AddFood"
 import { EtelkElrendezese } from './pages/Etelek-elrendezese.jsx'; 
 import AdminRoute from './components/AdminRoute'
 import AdminDashboard from './pages/AdminDashboard'
 
-
+ 
 function ProtectedRoute({ children }) {
   const { token, loading } = useAuth()
   
@@ -31,7 +30,6 @@ function AppContent() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/register-success" element={<RegisterSuccess />} />
-        <Route path="/about" element={<About />} />
         {/* Védett oldalak */}
         <Route 
           path="/MainPage" 

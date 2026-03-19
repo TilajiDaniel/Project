@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Layout from './Layout';
-import FabButton from './FabButton';
 import '../styles/AuthForms.css';
 
 // HARDKÓDOLT URL - állítsd be a saját backend URL-edre

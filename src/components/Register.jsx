@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Layout from './Layout';
-import FabButton from './FabButton';
 import '../styles/AuthForms.css';
 
 // HARDCODE URL - nincs process.env probléma
@@ -121,7 +120,6 @@ export default function Register() {
             Van már fiókod? <Link to="/login">Jelentkezz be!</Link>
           </p>
         </div>
-        <FabButton />
       </div>
     </Layout>
   );
