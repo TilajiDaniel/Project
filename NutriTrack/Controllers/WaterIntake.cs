@@ -13,14 +13,13 @@ namespace NutriTrack.Controllers
     [Route("api/[controller]")]
     public class WaterIntakeController : ControllerBase
     {
-        private readonly NutriTrack.Models.TesztContext _context;
+        private readonly TesztContext _context;
 
-        public WaterIntakeController(NutriTrack.Models.TesztContext context)
+        public WaterIntakeController(TesztContext context)
         {
             _context = context;
         }
 
-        // Segédfüggvény az aktuális felhasználó ID-jának kinyeréséhez a JWT-ből
         private int GetCurrentUserId()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
@@ -59,10 +58,10 @@ namespace NutriTrack.Controllers
 
             var waterLog = new WaterIntakeLog
             {
-                UserId = currentUserId, // Dinamikus ID a fix 1 helyett
+                UserId = currentUserId, 
                 AmountMl = dto.AmountMilliliters,
                 EntryDate = dto.Date.Date,
-                LoggedAt = DateTime.UtcNow // Érdemes beállítani a pontos időt is
+                LoggedAt = DateTime.UtcNow 
             };
 
             _context.WaterIntakeLogs.Add(waterLog);

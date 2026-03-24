@@ -278,6 +278,7 @@ namespace NutriTrack.Controllers
             }
 
             settings.DailyCalorieGoal = dto.DailyCalories;
+            settings.DailyWaterGoalMl = dto.DailyWater;
 
             var user = await _context.Users.FindAsync(userId);
             if (user != null)
