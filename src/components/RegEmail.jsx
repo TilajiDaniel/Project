@@ -3,7 +3,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import Layout from './Layout';
 import '../styles/AuthForms.css';
 
-// HARDKÓDOLT URL - állítsd be a saját backend URL-edre
 const API_BASE_URL = 'https://localhost:7133';
 
 export default function RegisterSuccess() {
@@ -59,7 +58,7 @@ export default function RegisterSuccess() {
     <Layout showNav={false}>
       <div className="auth-container">
         <div className="auth-card">
-          <h2>📬 Email megerősítés</h2>
+          <h2> Email megerősítés</h2>
 
           <p className="auth-text">
             Nézze meg az email címét, és kattintson a megerősítő linkre az emailben.
@@ -117,7 +116,6 @@ export default function RegisterSuccess() {
             </button>
           </form>
         </div>
-        <FabButton />
       </div>
     </Layout>
   );

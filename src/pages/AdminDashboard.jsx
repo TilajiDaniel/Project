@@ -113,13 +113,12 @@ const AdminDashboard = () => {
         proteinPer100g: Number(editingFood.proteinPer100g) || 0,
         carbsPer100g: Number(editingFood.carbsPer100g) || 0,
         fatPer100g: Number(editingFood.fatPer100g) || 0,
-        // SWAGGER szerinti kötelező mezők:
         category: {
             categoryId: Number(editingFood.categoryId),
             categoryName: "Frissített kategória",
             description: "Admin által frissítve"
         },
-        mealFoodItems: [] // Üres tömb!
+        mealFoodItems: [] 
     };
 
     try {

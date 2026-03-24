@@ -97,7 +97,7 @@ const groupedMeals = meals.reduce((acc, meal) => {
   return acc;
 }, {});
 
-const mealOrder = ["Reggeli", "Ebéd", "Vacsora", "Uzsonna/Nasi"];
+const mealOrder = ["Breakfast", "Lunch", "Dinner", "Uzsonna/Nasi"];
 
   return (
     <Layout>
@@ -125,7 +125,6 @@ const mealOrder = ["Reggeli", "Ebéd", "Vacsora", "Uzsonna/Nasi"];
 
           {error && <div className="error-message">{error}</div>}
 
-          {/* ÜRES ÁLLAPOT */}
           {meals.length === 0 ? (
             <div className="empty-state">
               <div className="empty-icon">🍽️</div>
@@ -135,10 +134,8 @@ const mealOrder = ["Reggeli", "Ebéd", "Vacsora", "Uzsonna/Nasi"];
               </button>
             </div>
           ) : (
-            /* ÉTELEK RÁCS */
             <div className="meal-columns-container">
   {mealOrder.map((type) => (
-    // Csak akkor jelenítjük meg az oszlopot, ha van benne étel
     groupedMeals[type] && groupedMeals[type].length > 0 && (
       <div key={type} className="meal-column">
         <h3 className="column-title">{type}</h3>
@@ -147,13 +144,16 @@ const mealOrder = ["Reggeli", "Ebéd", "Vacsora", "Uzsonna/Nasi"];
           {groupedMeals[type].map((meal) => (
             <div key={meal.itemKey} className="food-card">
               <div className="food-header">
+                <div className="meal-type-badge">
+                      {meal.mealType}
+                    </div>
                 <h4>{meal.foodName}</h4>
                 <span className="calories-badge">{meal.calories} kcal</span>
               </div>
 
               <div className="food-details">
                 <div className="nutrient-row">
-                  <span>{meal.quantityGrams}g</span>
+                  <span>quantity: {meal.quantityGrams}g</span>
                 </div>
               </div>
 

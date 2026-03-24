@@ -1,16 +1,13 @@
 .meal-columns-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  align-items: start; 
-  padding: 1rem;
+  display: flex;
+  flex-direction: row;
+  gap: 20px; 
+  overflow-x: auto;
 }
 
 .meal-column {
-  background: #f4f7f6;
-  padding: 1.2rem;
-  border-radius: 15px;
-  border: 1px solid #e0e0e0;
+  flex: 1;
+  min-width: 250px; 
 }
 
 .column-title {

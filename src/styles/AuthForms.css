@@ -44,3 +44,57 @@ button {
   border-radius: 8px;
   margin: 10px 0;
 }
+/* AuthForms.css végéhez add hozzá */
+.password-group {
+  position: relative;
+}
+
+.password-group {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: color 0.2s ease;
+}
+.password-toggle_reg{
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: color 0.2s ease;
+  top: 61px;
+}
+
+.password-toggle:hover {
+  color: #333;
+}
+
+.form-group input {
+  padding-right: 60px; /* Hely a szem ikonnak */
+}

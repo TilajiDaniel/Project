@@ -9,6 +9,7 @@ export default function Login() {
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); 
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -25,41 +26,51 @@ export default function Login() {
     setLoading(false);
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <Layout showNav={false}>
-     
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2>🔐 Bejelentkezés</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <input
-              name="username"
-              placeholder="Felhasználónév"
-              value={formData.username}
-              onChange={(e) => setFormData({ ...formData, [e.target.name]: e.target.value })}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <input
-              type="password"
-              name="password"
-              placeholder="Jelszó"
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, [e.target.name]: e.target.value })}
-              required
-            />
-          </div>
-          {error && <div className="error">{error}</div>}
-          <button type="submit" disabled={loading}>
-            {loading ? 'Belépés...' : 'Bejelentkezés'}
-          </button>
-        </form>
-        <p>Nincs fiókod? <Link to="/register">Regisztrálj</Link></p>
+      <div className="auth-container">
+        <div className="auth-card">
+          <h2>🔐 Bejelentkezés</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <input
+                name="username"
+                placeholder="Felhasználónév"
+                value={formData.username}
+                onChange={(e) => setFormData({ ...formData, [e.target.name]: e.target.value })}
+                required
+              />
+            </div>
+            {/* MÓDOSÍTOTT JELSZÓ MEZŐ */}
+            <div className="form-group password-group">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                placeholder="Jelszó"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, [e.target.name]: e.target.value })}
+                required
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={togglePasswordVisibility}
+              >
+                {showPassword ? '⚱️' : '👁️'}
+              </button>
+            </div>
+            {error && <div className="error">{error}</div>}
+            <button type="submit" disabled={loading}>
+              {loading ? 'Belépés...' : 'Bejelentkezés'}
+            </button>
+          </form>
+          <p>Nincs fiókod? <Link to="/register">Regisztrálj</Link></p>
+        </div>
       </div>
-    </div>
-
     </Layout>
   );
 }

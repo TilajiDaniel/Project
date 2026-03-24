@@ -85,7 +85,7 @@ function AppContent() {
           } 
         />
         
-        <Route path="/" element={<Main />} />
+        <Route path="/MainPage" element={<Main />} />
         <Route path="*" element={<h2>404 - Nincs ilyen oldal!</h2>} />
       </Routes>
     </div>

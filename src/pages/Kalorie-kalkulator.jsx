@@ -89,16 +89,14 @@ const Kalorie = () => {
       }
 
       localStorage.setItem('isCalorieDone', 'true');
-
-      alert(`Sikeresen beállítva: ${calories} kcal! Most visszairányítunk a főoldalra.`);
       
-      
+      setResults(null);
     } catch (err) {
       console.error("Mentési hiba:", err);
-      alert("Nem sikerült elmenteni a célt.");
+      alert("Nem sikerült elmenteni a célt."+ err.message);
     }
   };
-
+33
   return (
     <Layout>
     <div className="container">
@@ -113,7 +111,7 @@ const Kalorie = () => {
     <div className="calorie-calculator p-6 max-w-md mx-auto bg-white rounded-lg shadow-md">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Age (years)</label>
+          <label className="block text-sm font-medium mb-1">Age </label>
           <input
             type="number"
             name="age"

@@ -1,3 +1,4 @@
+// Register.jsx
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Layout from './Layout';
@@ -14,6 +15,7 @@ export default function Register() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // ÚJ: jelszó láthatóság
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -21,16 +23,32 @@ export default function Register() {
     setError('');
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    if (formData.password.length < 6 && !formData.password.includes('A, Á, B, C, CS, D, DZ, DZS, E, É, F, G, GY, H, I, Í, J, K, L, LY, M, N, NY, O, Ó, Ö, Ő, P, Q, R, S, SZ, T, TY, U, Ú, Ü, Ű, V, W, X, Y, Z, ZS')) {
-      setError('A jelszó legalább 6 karakter legyen és tartalmazzon nagybetűt!');
-      setLoading(false);
-      return;
-    }
+     if (formData.password.length < 6) {
+    setError('A jelszó legalább 6 karakter legyen!');
+    setLoading(false);
+    return;
+  }
+  
+  if (!/[A-ZÁÉÓÖŐÚÜŰ]/.test(formData.password)) {
+    setError('A jelszó tartalmazzon legalább 1 nagybetűt!');
+    setLoading(false);
+    return;
+  }
+  
+  if (!/[0-9]/.test(formData.password)) {
+    setError('A jelszó tartalmazzon legalább 1 számot!');
+    setLoading(false);
+    return;
+  }
 
     if (formData.username.length < 3) {
       setError('A felhasználónév legalább 3 karakter legyen!');
@@ -96,10 +114,11 @@ export default function Register() {
               />
             </div>
             
-            <div className="form-group">
+            {/* MÓDOSÍTOTT JELSZÓ MEZŐ */}
+            <div className="form-group password-group">
               <label>Jelszó</label>
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 name="password"
                 placeholder="Legalább 6 karakter"
                 value={formData.password}
@@ -107,6 +126,15 @@ export default function Register() {
                 required
                 minLength="6"
               />
+              <button
+              
+                type="button"
+                className="password-toggle_reg"
+                onClick={togglePasswordVisibility}
+                
+              >
+                {showPassword ? '🙈' : '👁️'}
+              </button>
             </div>
             
             {error && <div className="error">{error}</div>}
