@@ -5,6 +5,8 @@ VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NutriTrack", "NutriTrack.csproj", "{904A568B-8B89-464B-8A28-BF7AF7E33E68}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NutriTrackTests", "..\NutriTrackTests\NutriTrackTests.csproj", "{954139D0-9D67-438A-B24E-3BC0CA154674}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{904A568B-8B89-464B-8A28-BF7AF7E33E68}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{904A568B-8B89-464B-8A28-BF7AF7E33E68}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{904A568B-8B89-464B-8A28-BF7AF7E33E68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{954139D0-9D67-438A-B24E-3BC0CA154674}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{954139D0-9D67-438A-B24E-3BC0CA154674}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{954139D0-9D67-438A-B24E-3BC0CA154674}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{954139D0-9D67-438A-B24E-3BC0CA154674}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
