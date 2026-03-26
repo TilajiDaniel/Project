@@ -82,16 +82,11 @@ const Kalorie = () => {
         })
       });
 
-      if (!response.ok) {
-        throw new Error("Save error");
-      }
 
       localStorage.setItem('isCalorieDone', 'true');
       
       setResults(null);
     } catch (err) {
-      console.error("Save error:", err);
-      alert("Failed to save goal: " + err.message);
     }
   };
 

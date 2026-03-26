@@ -67,7 +67,6 @@ const EtelKereses = () => {
       );
     }
     
-    console.log('✅ Filter result:', filtered.length, 'foods'); 
     setFilteredFoods(filtered);
   }, [allFoods, activeCategory, searchTerm]);
 

@@ -122,14 +122,12 @@ const Naplo = () => {
       if (response.ok) {
         setDisplayWeight(weightValue.toFixed(1));
         await fetchTodayWeight();
-        alert("Weight saved successfully!");
       } else {
         throw new Error('Server error');
       }
     } catch (error) {
       console.error("Error saving weight:", error);
       setDisplayWeight(previousDisplayWeight);
-      alert('Failed to save weight!');
     } finally {
       setLoading(false);
     }

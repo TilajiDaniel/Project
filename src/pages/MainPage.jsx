@@ -87,7 +87,6 @@ const Main = () => {
                 setIsProfileDone(true);
                 localStorage.setItem('isProfileDone', 'true');
                 setShowFirstSetup(false);
-                alert("Profile saved!");
             }
         } catch (error) { 
         }
