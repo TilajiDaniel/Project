@@ -1,0 +1,27 @@
+﻿<Window x:Class="NutriTrackWPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NutriTrackWPF"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="450">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="4*"/>
+            <RowDefinition Height="4*"/>
+            <RowDefinition Height="25*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Grid.Row="0">
+            <ComboBox Name="Cbx" Width="150" Height="20" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="15"/>
+            <Button x:Name="Torlesbtn" Height="20" Width="100" Click="Torlesbtn_Click" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Törlés"/>
+            <Button x:Name="Szerkesztesbtn" Height="20" Width="100" Click="Szerkesztesbtn_Click" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Szerkesztés" Margin="15"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Grid.Row="1">
+            <TextBox Name="Nevtbx" Width="150" Height="20" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="15"/>
+            <TextBox Name="Kaloriatbx" Width="150" Height="20" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            <Button x:Name="Hozzaadasbtn" Height="20" Width="100" Click="Hozzaadasbtn_Click" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Hozzáadás" Margin="15"/>
+        </StackPanel>
+        <ListBox Name="Eteleklistbox" Grid.Row="2" Margin="15"/>
+    </Grid>
+</Window>
