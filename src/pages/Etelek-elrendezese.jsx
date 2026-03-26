@@ -65,7 +65,7 @@ const EtelkElrendezese = () => {
 
       if (response.ok) {
         alert('Ételt töröltük!');
-        fetchTodayMeals(); // Frissítés
+        fetchTodayMeals();
       } else {
         throw new Error('Törlés sikertelen');
       }

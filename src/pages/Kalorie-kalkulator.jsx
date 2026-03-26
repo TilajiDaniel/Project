@@ -15,8 +15,6 @@ const Kalorie = () => {
   });
   const [results, setResults] = useState(null);
 
-
-
   const activityOptions = [
     { value: 'sedentary', label: 'Sedentary (little or no exercise)' },
     { value: 'light', label: 'Light (1-3 times a week)' },

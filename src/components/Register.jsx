@@ -1,11 +1,9 @@
-// Register.jsx
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Layout from './Layout';
 import '../styles/AuthForms.css';
 
-// HARDCODE URL - nincs process.env probléma
-const API_BASE_URL = 'https://localhost:7133';  // itt állítsd be a saját URL-det
+const API_BASE_URL = 'https://localhost:7133';  
 
 export default function Register() {
   const [formData, setFormData] = useState({ 
@@ -15,7 +13,7 @@ export default function Register() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // ÚJ: jelszó láthatóság
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -114,7 +112,6 @@ export default function Register() {
               />
             </div>
             
-            {/* MÓDOSÍTOTT JELSZÓ MEZŐ */}
             <div className="form-group password-group">
               <label>Jelszó</label>
               <input

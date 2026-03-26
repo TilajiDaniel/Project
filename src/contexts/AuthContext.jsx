@@ -13,7 +13,6 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const requestInterceptorRef = useRef(null);
 
-// Az url a backend regisztrációs és bejelentkezési végpontjára mutat
   const API_BASE = 'https://localhost:7133/api/Registry';
 
   useEffect(() => {

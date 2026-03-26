@@ -26,11 +26,11 @@ function AppContent() {
     <div className="App">
       
       <Routes>
-        {/* Nyilvános oldalak */}
+        {/*Publikus*/}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/register-success" element={<RegisterSuccess />} />
-        {/* Védett oldalak */}
+        {/*Védett*/}
         <Route 
           path="/MainPage" 
           element={
@@ -73,7 +73,7 @@ function AppContent() {
         />
         <Route path="/etel-elrendezese" element={<ProtectedRoute><EtelkElrendezese /></ProtectedRoute>} />
         <Route path="/addfood" element={<ProtectedRoute><AddFood /></ProtectedRoute>} />
-
+          {/*Admin*/}
         <Route 
           path="/admin" 
           element={
@@ -85,8 +85,7 @@ function AppContent() {
           } 
         />
         
-        <Route path="/MainPage" element={<Main />} />
-        <Route path="*" element={<h2>404 - Nincs ilyen oldal!</h2>} />
+        <Route path="*" element={<Navigate to="/MainPage" replace />} />
       </Routes>
     </div>
   )

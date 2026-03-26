@@ -1,4 +1,3 @@
-// src/components/Login.jsx
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -45,7 +44,6 @@ export default function Login() {
                 required
               />
             </div>
-            {/* MÓDOSÍTOTT JELSZÓ MEZŐ */}
             <div className="form-group password-group">
               <input
                 type={showPassword ? 'text' : 'password'}

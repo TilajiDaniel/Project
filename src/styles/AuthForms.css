@@ -44,7 +44,6 @@ button {
   border-radius: 8px;
   margin: 10px 0;
 }
-/* AuthForms.css végéhez add hozzá */
 .password-group {
   position: relative;
 }
@@ -96,5 +95,5 @@ button {
 }
 
 .form-group input {
-  padding-right: 60px; /* Hely a szem ikonnak */
+  padding-right: 60px; 
 }
