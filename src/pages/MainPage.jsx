@@ -21,10 +21,13 @@ const Main = () => {
         { q: "How does calorie calculation work?", a: "We use the Mifflin-St Jeor equation to calculate your Basal Metabolic Rate (BMR) based on your data." },
         { q: "Why do I need to enter my target weight?", a: "This helps determine whether you need a daily calorie deficit (weight loss) or surplus." },
         { q: "Can I change my data later?", a: "Yes! Profile settings can be reopened anytime if your weight changes." },
-        { q: "How much water should I drink daily?", a: "Our system calculates approximately 35ml of water per kilogram of body weight." }
+        { q: "How much water should I drink daily?", a: "Our system calculates approximately 35ml of water per kilogram of body weight." },
+       { 
+        q: "Do I need to complete the Calorie Calculator to finish registration?", 
+        a: "Yes, it's required. The calculator data feeds into your Statistics page and Diary dashboard, providing personalized daily calorie and water goals." 
+        }
     ];
 
-    // Fetch user status
     useEffect(() => {
         const fetchUserStatus = async () => {
             const token = localStorage.getItem('token');
@@ -53,7 +56,6 @@ const Main = () => {
         fetchUserStatus();
     }, []);
 
-    // Daily tip rotation
     useEffect(() => {
         const tips = ['Log every meal!', 'Watch your portion sizes!', 'Drink enough water!', 'Exercise daily!'];
         let index = 0;
@@ -88,7 +90,6 @@ const Main = () => {
                 alert("Profile saved!");
             }
         } catch (error) { 
-            alert('An error occurred!'); 
         }
     };
 
@@ -163,7 +164,9 @@ const Main = () => {
                         <div className="about-container">
                             <h2>Our Mission</h2>
                             <div className="about-content">
-                                <p>Food Diary is more than just a calorie counter...</p>
+                                <p>Our mission is to help people build healthier lifestyles through simple and accessible technology. With NutriTrack, we aim to provide users with an easy-to-use platform where they can track their daily habits, understand their nutritional intake, and stay motivated to reach their goals.
+
+We believe that maintaining a healthy lifestyle should not be complicated. By combining clear data, intuitive design, and personalized insights, NutriTrack empowers users to make better decisions about their health every day.</p>
                             </div>
                             <div className="about-stats">
                                 <div className="stat-item">

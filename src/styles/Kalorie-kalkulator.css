@@ -7,7 +7,6 @@
   animation: fadeInContainer 0.8s ease-out;
 }
 
-/* Sidebar - változatlan */
 nav.sidebar {
   width: 260px;
   background: rgba(255, 255, 255, 0.95);
@@ -47,7 +46,6 @@ nav.sidebar {
 
 .sidebar-item.active::before { background: white; width: 6px; }
 
-/* Main content */
 .main-content { 
   flex: 1; 
   display: flex; 
@@ -55,7 +53,6 @@ nav.sidebar {
   gap: 25px; 
 }
 
-/* Cím */
 .title {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
@@ -73,7 +70,6 @@ nav.sidebar {
 
 
 
-/* Kalória kalkulátor - ❌ HOVER ELTÁVOLÍTVA */
 .calorie-calculator {
   background: rgba(255, 255, 255, 0.97);
   backdrop-filter: blur(25px);
@@ -85,16 +81,13 @@ nav.sidebar {
   overflow: hidden;
   max-width: 520px;
   margin: 0 auto;
-  /* ❌ HOVER ELTÁVOLÍTVA */
 }
 
 
-/* Form spacing */
 .calorie-calculator form > div {
   margin-bottom: 24px;
 }
 
-/* Label */
 label {
   display: block;
   margin-bottom: 12px;
@@ -105,7 +98,6 @@ label {
   position: relative;
 }
 
-/* Input/Select - ❌ HOVER ELTÁVOLÍTVA */
 input, select {
   width: 100%;
   padding: 18px 22px;
@@ -145,7 +137,6 @@ select {
   cursor: pointer;
 }
 
-/* Submit gomb - ❌ HOVER ELTÁVOLÍTVA */
 button[type="submit"] {
   width: 100%;
   background: linear-gradient(135deg, #28a745, #20c997, #22c55e);
@@ -165,7 +156,6 @@ button[type="submit"] {
   overflow: hidden;
 }
 
-/* Eredmény panel - ❌ HOVER ELTÁVOLÍTVA */
 .bg-gray-50 {
   background: linear-gradient(135deg, rgba(248,249,250,0.95), rgba(255,255,255,0.9));
   padding: 30px;
@@ -199,7 +189,6 @@ button[type="submit"] {
   padding: 18px 25px;
   border-radius: 16px;
   border-left: 5px solid #667eea;
-  /* ❌ HOVER ELTÁVOLÍTVA */
   font-size: 17px;
   font-weight: 600;
   box-shadow: 0 4px 15px rgba(0,0,0,0.08);
@@ -220,7 +209,6 @@ button[type="submit"] {
   font-weight: 500;
 }
 
-/* Tailwind helyettesítők */
 .p-6 { padding: 1.5rem; }
 .max-w-md { max-width: 28rem; }
 .mx-auto { margin-left: auto; margin-right: auto; }
@@ -229,7 +217,6 @@ button[type="submit"] {
 .rounded-lg { border-radius: 0.5rem; }
 .shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0,0, 0.1); }
 
-/* Animációk */
 @keyframes fadeInContainer {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -240,7 +227,6 @@ button[type="submit"] {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .container { 
     flex-direction: column; 
@@ -264,7 +250,6 @@ button[type="submit"] {
     padding: 25px 30px;
   }
 }
-/* Popup stílusok - MŰKÖDIK A LÉTEZŐ CSS-SZEL */
 .popup-overlay {
   position: fixed;
   inset: 0;

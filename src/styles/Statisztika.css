@@ -1,5 +1,3 @@
-/* src/styles/Statisztika.css - Frissített verzió diagramokhoz */
-
 .container {
   display: flex;
   max-width: 1400px;
@@ -10,7 +8,6 @@
   animation: fadeInContainer 0.8s ease-out;
 }
 
-/* Sidebar maradt a stílusodnál */
 nav.sidebar {
   width: 260px;
   background: rgba(255, 255, 255, 0.95);
@@ -39,15 +36,13 @@ nav.sidebar {
   box-shadow: 0 20px 45px rgba(0,0,0,0.12);
 }
 
-/* CONTENT GRID - Rugalmas elrendezés */
 .content-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Alapvetően két oszlop */
+  grid-template-columns: repeat(2, 1fr); 
   gap: 25px;
   align-items: start;
 }
 
-/* Általános Panel Stílus */
 .main-panel {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
@@ -60,12 +55,11 @@ nav.sidebar {
   position: relative;
   overflow: hidden;
   transition: transform 0.3s ease;
-  min-height: 200px; /* Alap magasság */
+  min-height: 200px; 
 }
 
-/* Diagram Panel - Kiemelt szélesség és magasság */
 .chart-panel {
-  grid-column: span 2; /* A diagramok teljes szélességet kapnak alapból */
+  grid-column: span 2; 
   min-height: 400px;
   justify-content: flex-start;
   align-items: stretch;
@@ -81,11 +75,9 @@ nav.sidebar {
   gap: 10px;
 }
 
-/* Dekorációs csíkok felülre - a korábbi logikád alapján */
 .chart-panel:nth-child(1)::before { background: linear-gradient(90deg, #ff7300, #ffab00); content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; }
 .chart-panel:nth-child(2)::before { background: linear-gradient(90deg, #0088FE, #00008B); content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; }
 
-/* Kisebb panelek (Célok, Trendek) */
 .small-panel {
   grid-column: span 1;
   justify-content: center;
@@ -93,14 +85,12 @@ nav.sidebar {
   text-align: center;
 }
 
-/* TALL PANEL struktúra fixálása */
 .tall-panel {
   display: grid;
   grid-template-columns: 1fr;
   gap: 20px;
 }
 
-/* Responsive */
 @media (max-width: 1024px) {
   .content-grid {
     grid-template-columns: 1fr;

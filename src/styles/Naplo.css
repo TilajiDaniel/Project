@@ -57,7 +57,6 @@ nav.sidebar {
 
 .sidebar-item.active::before { background: white; width: 6px; }
 
-/* Main content */
 .main-content { 
   flex: 1; 
   display: flex; 
@@ -65,7 +64,6 @@ nav.sidebar {
   gap: 30px; 
 }
 
-/* Cím */
 .title {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
@@ -90,7 +88,6 @@ nav.sidebar {
   opacity: 0.9;
 }
 
-/* CONTENT GRID - 2x2 elrendezés */
 .content-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -100,7 +97,6 @@ nav.sidebar {
   align-items: stretch;
 }
 
-/* MAIN PANEL - Általános stílus */
 .main-panel {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
@@ -130,7 +126,6 @@ nav.sidebar {
   border-radius: 20px 20px 0 0;
 }
 
-/* TALL PANEL - 2x1 */
 .tall-panel {
   grid-row: span 2;
   display: flex;
@@ -144,24 +139,22 @@ nav.sidebar {
   font-size: 22px;
 }
 
-/* EGYENLŐ ÁRNYÉKOK MINDEN PANELEN */
-.main-panel:nth-child(1)::before { /* Napi súly */
+.main-panel:nth-child(1)::before { 
   background: linear-gradient(90deg, #ed8936, #dd6b20);
 }
 
-.main-panel:nth-child(2)::before { /* Cél súly */
+.main-panel:nth-child(2)::before { 
   background: linear-gradient(90deg, #48bb78, #38a169);
 }
 
-.tall-panel .main-panel:nth-child(1)::before { /* Napi összefoglalás */
+.tall-panel .main-panel:nth-child(1)::before { 
   background: linear-gradient(90deg, #667eea, #764ba2);
 }
 
-.tall-panel .main-panel:nth-child(2)::before { /* Edzések */
+.tall-panel .main-panel:nth-child(2)::before { 
   background: linear-gradient(90deg, #f56565, #e53e3e);
 }
 
-/* Panel belső tartalom */
 .main-panel .emoji {
   font-size: 48px;
   margin-bottom: 15px;
@@ -175,7 +168,6 @@ nav.sidebar {
   margin-top: 8px;
 }
 
-/* ÜRES ÁLLAPOT */
 .main-panel.empty {
   font-size: 20px;
   color: #a0aec0;
@@ -189,7 +181,6 @@ nav.sidebar {
   margin-top: 10px;
 }
 
-/* Animációk */
 @keyframes fadeInContainer {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -200,7 +191,6 @@ nav.sidebar {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Responsive */
 @media (max-width: 1024px) {
   .content-grid {
     grid-template-columns: 1fr;
@@ -256,7 +246,6 @@ nav.sidebar {
   }
 }
 
-/* Fényhatás a paneleken */
 .main-panel {
   background: linear-gradient(145deg, 
     rgba(255, 255, 255, 0.97) 0%, 
@@ -275,7 +264,6 @@ nav.sidebar {
   opacity: 0.7;
 }
 
-/* Üres állapot kiemelés */
 .main-panel:not(.empty)::before {
   box-shadow: 0 4px 15px rgba(102,126,234,0.2);
 }
