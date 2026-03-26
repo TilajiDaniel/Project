@@ -25,7 +25,7 @@ export default function NavHeader() {
     <header className={`nav-header ${mobileMenuOpen ? 'menu-open' : ''}`}>
       <div className="nav-brand">
         <h2>🍽️ NutriTrack</h2>
-        {user && <span>Üdv, {user.username}!</span>}
+        {user && <span>Hi, {user.username}!</span>}
       </div>
       
       <nav className={`nav-menu ${mobileMenuOpen ? 'mobile-open' : ''}`}>
@@ -34,35 +34,35 @@ export default function NavHeader() {
           className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}
           onClick={() => setMobileMenuOpen(false)}
         >
-          Főoldal
+          Home
         </NavLink>
         <NavLink 
           to="/naplo" 
           className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}
           onClick={() => setMobileMenuOpen(false)}
         >
-          Napló
+          Diary
         </NavLink>
         <NavLink 
           to="/Etel-kereses" 
           className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}
           onClick={() => setMobileMenuOpen(false)}
         >
-          Étel keresés
+          Food Search
         </NavLink>
         <NavLink 
           to="/Kalorie-kalkulator" 
           className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}
           onClick={() => setMobileMenuOpen(false)}
         >
-          Kalória kalkulátor
+          Calorie Calculator
         </NavLink>
         <NavLink 
           to="/Statisztika" 
           className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}
           onClick={() => setMobileMenuOpen(false)}
         >
-          Statisztika
+          Statistics
         </NavLink>
         {userRole === 'Admin' && (
           <NavLink 
@@ -74,7 +74,7 @@ export default function NavHeader() {
           </NavLink>
         )}
         <button onClick={handleLogout} className="btn-logout">
-          Kilépés
+          Logout
         </button>
       </nav>
       

@@ -21,14 +21,13 @@ const AddFood = () => {
         const food = JSON.parse(decodeURIComponent(foodData));
         setSelectedFood(food);
       } catch (error) {
-        console.error('Étel adat hiba:', error);
+        console.error('Food data error:', error);
         navigate('/etel-kereses');
       }
     } else {
       navigate('/etel-kereses');
     }
   }, [location.search, navigate]);
-
 
   const addToMeal = async (mealType) => {
     setSaving(true);
@@ -38,22 +37,21 @@ const AddFood = () => {
     const formattedMealType = mealType.charAt(0).toUpperCase() + mealType.slice(1);
 
     const now = new Date();
-
     const localIsoDate = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString();
 
     const userIdFromStorage = localStorage.getItem('userId');
 
-const payload = {
-    userId: userIdFromStorage ? parseInt(userIdFromStorage) : 0, 
-    mealDate: localIsoDate,
-    mealType: formattedMealType,
-    foodItems: [
-      {
-        foodId: selectedFood.foodId,
-        quantityGrams: parseInt(quantity)
-      }
-    ]
-};
+    const payload = {
+      userId: userIdFromStorage ? parseInt(userIdFromStorage) : 0, 
+      mealDate: localIsoDate,
+      mealType: formattedMealType,
+      foodItems: [
+        {
+          foodId: selectedFood.foodId,
+          quantityGrams: parseInt(quantity)
+        }
+      ]
+    };
 
     try {
       const response = await fetch('https://localhost:7133/api/Meal/CreateMeal', {
@@ -65,14 +63,8 @@ const payload = {
         body: JSON.stringify(payload)
       });
 
-      if (response.ok) {
-    alert('Étel sikeresen hozzáadva a naplóhoz! ✅');
-} else {
-    alert(`Hiba a mentés során...`);
-}
     } catch (error) {
-      console.error('Hálózati hiba mentéskor:', error);
-      alert('Nem sikerült csatlakozni a szerverhez. Ellenőrizd az internetkapcsolatot!');
+      console.error('Network error during save:', error);
     } finally {
       setSaving(false);
     }
@@ -83,12 +75,12 @@ const payload = {
       <Layout>
         <div className="container">
           <div className="main-content">
-            <div className="title">🍽️ Étel hozzáadása</div>
+            <div className="title">🍽️ Add Food</div>
             <div className="empty-state">
-              Nincs kiválasztott étel 😔
+              No food selected 😔
               <br />
               <button onClick={() => navigate('/etel-kereses')} className="back-btn">
-                ← Vissza a kereséshez
+                ← Back to search
               </button>
             </div>
           </div>
@@ -102,11 +94,10 @@ const payload = {
       <div className="container">
         <div className="main-content">
           <div className="title">
-            🍽️ {selectedFood.name} hozzáadása
+            🍽️ Add {selectedFood.name}
           </div>
           
           <div className="add-food-card">
-            {/* Étel info */}
             <div className="food-preview">
               <div className="food-image">🍗</div>
               <div className="food-details">
@@ -114,15 +105,14 @@ const payload = {
                 <div className="base-nutrients">
                   <span>🔥 {selectedFood.calories} kcal/100g</span>
                   <span>💪 {selectedFood.protein}g protein</span>
-                  <span>🍞 {selectedFood.carbs}g szénhidrát</span>
-                  <span>🧈 {selectedFood.fat}g zsír</span>
+                  <span>🍞 {selectedFood.carbs}g carbs</span>
+                  <span>🧈 {selectedFood.fat}g fat</span>
                 </div>
               </div>
             </div>
 
-            {/* Mennyiség választó */}
             <div className="quantity-section">
-              <label>Mennyiség:</label>
+              <label>Quantity:</label>
               <div className="quantity-controls">
                 <button 
                   onClick={() => setQuantity(Math.max(10, quantity - 10))}
@@ -151,34 +141,34 @@ const payload = {
                 </button>
               </div>
               <div className="total-calories">
-                Összesen: {Math.round(selectedFood.calories * quantity / 100)} kcal
+                Total: {Math.round(selectedFood.calories * quantity / 100)} kcal
               </div>
             </div>
 
-            {/* Étkezés választó */}
+            {/* Meal selector */}
             <div className="meal-selector">
-              <h3>Hová add hozzá?</h3>
+              <h3>Where to add?</h3>
               <div className="meal-buttons">
                 <button 
                   className="meal-btn breakfast"
                   onClick={() => addToMeal('breakfast')}
                   disabled={saving}
                 >
-                  {saving ? '⏳ Mentés...' : '☀️ Reggeli'}
+                  {saving ? '⏳ Saving...' : '☀️ Breakfast'}
                 </button>
                 <button 
                   className="meal-btn lunch"
                   onClick={() => addToMeal('lunch')}
                   disabled={saving}
                 >
-                  {saving ? '⏳ Mentés...' : '🍲 Ebéd'}
+                  {saving ? '⏳ Saving...' : '🍲 Lunch'}
                 </button>
                 <button 
                   className="meal-btn dinner"
                   onClick={() => addToMeal('dinner')}
                   disabled={saving}
                 >
-                  {saving ? '⏳ Mentés...' : '🌙 Vacsora'}
+                  {saving ? '⏳ Saving...' : '🌙 Dinner'}
                 </button>
               </div>
             </div>
@@ -189,7 +179,7 @@ const payload = {
             onClick={() => navigate('/Etel-kereses')}
             disabled={saving}
           >
-            ← Vissza a kereséshez
+            ← Back to search
           </button>
         </div>
       </div>
@@ -197,4 +187,4 @@ const payload = {
   );
 };
 
-export {AddFood}; 
+export {AddFood};

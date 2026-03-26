@@ -85,14 +85,14 @@ export default function Register() {
     <Layout showNav={false}>
       <div className="auth-container">
         <div className="auth-card">
-          <h2>📝 Regisztráció</h2>
+          <h2>Sign up</h2>
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label>Felhasználónév</label>
+              <label>Username</label>
               <input
                 type="text"
                 name="username"
-                placeholder="Új felhasználónév"
+                placeholder="Username"
                 value={formData.username}
                 onChange={handleChange}
                 required
@@ -101,7 +101,7 @@ export default function Register() {
             </div>
             
             <div className="form-group">
-              <label>Email cím</label>
+              <label>Email</label>
               <input
                 type="email"
                 name="email"
@@ -113,11 +113,11 @@ export default function Register() {
             </div>
             
             <div className="form-group password-group">
-              <label>Jelszó</label>
+              <label>Password</label>
               <input
                 type={showPassword ? 'text' : 'password'}
                 name="password"
-                placeholder="Legalább 6 karakter"
+                placeholder="Minimum 6 characters"
                 value={formData.password}
                 onChange={handleChange}
                 required
@@ -130,19 +130,19 @@ export default function Register() {
                 onClick={togglePasswordVisibility}
                 
               >
-                {showPassword ? '🙈' : '👁️'}
+                {showPassword ? '⚱️' : '👁️'}
               </button>
             </div>
             
             {error && <div className="error">{error}</div>}
             
             <button type="submit" disabled={loading} className="btn-primary">
-              {loading ? 'Regisztrálás...' : 'Regisztráció'}
+              {loading ? 'Signing up...' : 'Sign up'}
             </button>
           </form>
           
           <p className="auth-link">
-            Van már fiókod? <Link to="/login">Jelentkezz be!</Link>
+            Already have an account? <Link to="/login">Login!</Link>
           </p>
         </div>
       </div>

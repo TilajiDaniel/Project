@@ -32,24 +32,18 @@ const EtelkElrendezese = () => {
       if (response.ok) {
         const data = await response.json();
 
-        console.log("Backend válasz:", data);
-
         setMeals(data.meals || data.Meals || []);
         setTotalCalories(data.summary?.totalCalories || 0);
         setTotalProtein(data.summary?.totalProtein || 0);
-      } else {
-        setError('Nem sikerült betölteni a mai ételeket');
-      }
+      } 
     } catch (error) {
-      console.error(' Hiba meals lekérdezés:', error);
-      setError('Hálózati hiba történt');
     } finally {
       setLoading(false);
     }
   };
 
   const deleteMealItem = async (mealId, foodId) => {
-    if (!confirm('Biztosan törölni szeretnéd ezt az ételt?')) return;
+    if (!confirm('Are you sure you want to delete this food item?')) return;
 
     try {
       setLoading(true);
@@ -64,14 +58,11 @@ const EtelkElrendezese = () => {
       );
 
       if (response.ok) {
-        alert('Ételt töröltük!');
         fetchTodayMeals();
       } else {
-        throw new Error('Törlés sikertelen');
+        throw new Error('Delete failed');
       }
     } catch (error) {
-      console.error(' Törlési hiba:', error);
-      alert(' Törlés sikertelen!');
     } finally {
       setLoading(false);
     }
@@ -82,42 +73,41 @@ const EtelkElrendezese = () => {
       <Layout>
         <div className="container">
           <div className="main-content">
-            <div className="title"> Mai ételek</div>
-            <div className="loading">Betöltés...</div>
+            <div className="title">Today's Meals</div>
+            <div className="loading">Loading...</div>
           </div>
         </div>
       </Layout>
     );
   }
 
-const groupedMeals = meals.reduce((acc, meal) => {
-  const type = meal.mealType; 
-  if (!acc[type]) acc[type] = [];
-  acc[type].push(meal);
-  return acc;
-}, {});
+  const groupedMeals = meals.reduce((acc, meal) => {
+    const type = meal.mealType; 
+    if (!acc[type]) acc[type] = [];
+    acc[type].push(meal);
+    return acc;
+  }, {});
 
-const mealOrder = ["Breakfast", "Lunch", "Dinner", "Uzsonna/Nasi"];
+  const mealOrder = ["Breakfast", "Lunch", "Dinner", "Snack"];
 
   return (
     <Layout>
       <div className="container">
         <div className="main-content">
-          <div className="title"> Mai ételek</div>
+          <div className="title">Today's Meals</div>
 
-          {/* ÖSSZESÍTŐ KÁRTYÁK */}
           {meals.length > 0 && (
             <div className="summary-cards">
               <div className="summary-card">
-                <span> Összes kalória</span>
+                <span>Total Calories</span>
                 <strong>{totalCalories.toLocaleString()} kcal</strong>
               </div>
               <div className="summary-card">
-                <span> Összes fehérje</span>
+                <span>Total Protein</span>
                 <strong>{totalProtein.toFixed(1)}g</strong>
               </div>
               <div className="summary-card">
-                <span> Ételek száma</span>
+                <span>Food Items</span>
                 <strong>{meals.length}</strong>
               </div>
             </div>
@@ -128,60 +118,60 @@ const mealOrder = ["Breakfast", "Lunch", "Dinner", "Uzsonna/Nasi"];
           {meals.length === 0 ? (
             <div className="empty-state">
               <div className="empty-icon">🍽️</div>
-              <p>Nincs még ma elmentett étel</p>
+              <p>No meals saved today yet</p>
               <button className="primary-btn" onClick={fetchTodayMeals}>
-                 Frissítés
+                 Refresh
               </button>
             </div>
           ) : (
             <div className="meal-columns-container">
-  {mealOrder.map((type) => (
-    groupedMeals[type] && groupedMeals[type].length > 0 && (
-      <div key={type} className="meal-column">
-        <h3 className="column-title">{type}</h3>
-        
-        <div className="foods-stack">
-          {groupedMeals[type].map((meal) => (
-            <div key={meal.itemKey} className="food-card">
-              <div className="food-header">
-                <div className="meal-type-badge">
-                      {meal.mealType}
+              {mealOrder.map((type) => (
+                groupedMeals[type] && groupedMeals[type].length > 0 && (
+                  <div key={type} className="meal-column">
+                    <h3 className="column-title">{type}</h3>
+                    
+                    <div className="foods-stack">
+                      {groupedMeals[type].map((meal) => (
+                        <div key={meal.itemKey} className="food-card">
+                          <div className="food-header">
+                            <div className="meal-type-badge">
+                                  {meal.mealType}
+                              </div>
+                            <h4>{meal.foodName}</h4>
+                            <span className="calories-badge">{meal.calories} kcal</span>
+                          </div>
+
+                          <div className="food-details">
+                            <div className="nutrient-row">
+                              <span>quantity: {meal.quantityGrams}g</span>
+                            </div>
+                          </div>
+
+                          <div className="food-actions">
+                            <button 
+                              className="delete-btn"
+                              onClick={() => deleteMealItem(meal.mealId, meal.foodId)} 
+                              disabled={loading}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                <h4>{meal.foodName}</h4>
-                <span className="calories-badge">{meal.calories} kcal</span>
-              </div>
-
-              <div className="food-details">
-                <div className="nutrient-row">
-                  <span>quantity: {meal.quantityGrams}g</span>
-                </div>
-              </div>
-
-              <div className="food-actions">
-                <button 
-                  className="delete-btn"
-                  onClick={() => deleteMealItem(meal.mealId, meal.foodId)} 
-                  disabled={loading}>
-                  Törlés
-                </button>
-              </div>
+                  </div>
+                )
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
-    )
-  ))}
-</div>
           )}
 
-          {/* AKCIÓ GOMBOK */}
           <div className="actions">
             <button 
               className="primary-btn"
               onClick={() => window.location.href = '/naplo'}
               disabled={loading}
             >
-               Vissza
+               Back
             </button>
           </div>
         </div>

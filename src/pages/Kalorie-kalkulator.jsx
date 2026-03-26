@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Layout from '../components/Layout';
 import '../styles/Kalorie-kalkulator.css';
 
@@ -59,11 +58,12 @@ const Kalorie = () => {
       lose: Math.round(maintenance - 500)
     });
   };
+
   const saveDailyGoal = async (calories) => {
     const token = localStorage.getItem('token');
     
     if (!token) {
-      alert("Kérjük, jelentkezzen be a cél mentéséhez!");
+      alert("Please log in to save your goal!");
       return;
     }
 
@@ -83,131 +83,127 @@ const Kalorie = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Hiba a mentés során");
+        throw new Error("Save error");
       }
 
       localStorage.setItem('isCalorieDone', 'true');
       
       setResults(null);
     } catch (err) {
-      console.error("Mentési hiba:", err);
-      alert("Nem sikerült elmenteni a célt."+ err.message);
+      console.error("Save error:", err);
+      alert("Failed to save goal: " + err.message);
     }
   };
-33
+
   return (
     <Layout>
-    <div className="container">
-
-      <div className="main-content">
-        <div className="title">
-          Calorie Needs Calculator
-          
-        </div>
-
-     
-    <div className="calorie-calculator p-6 max-w-md mx-auto bg-white rounded-lg shadow-md">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Age </label>
-          <input
-            type="number"
-            name="age"
-            value={formData.age}
-            onChange={handleChange}
-            min="1"
-            max="120"
-            required
-            className="w-full p-2 border rounded-md"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Gender</label>
-          <select name="gender" value={formData.gender} onChange={handleChange} className="w-full p-2 border rounded-md">
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Height (cm)</label>
-          <input
-            type="number"
-            name="height"
-            value={formData.height}
-            onChange={handleChange}
-            min="100"
-            max="250"
-            required
-            className="w-full p-2 border rounded-md"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Weight (kg)</label>
-          <input
-            type="number"
-            step="0.1"
-            name="weight"
-            value={formData.weight}
-            onChange={handleChange}
-            min="30"
-            max="300"
-            required
-            className="w-full p-2 border rounded-md"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Activity Level</label>
-          <select name="activity" value={formData.activity} onChange={handleChange} className="w-full p-2 border rounded-md">
-            {activityOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-        </div>
-        <button type="submit" className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">
-          Calculate
-        </button>
-      </form>
-      {results && (
-  <>
-    <div className="popup-overlay" onClick={() => setResults(null)}></div>
-    <div className="popup-overlay">
-      <div className="popup-window">
-        <div className="popup-header">
-          <h3 className="popup-title">Daily Calorie Recommendations</h3>
-          <button className="popup-close" onClick={() => setResults(null)}>&times;</button>
-        </div>
+      <div className="container">
+        <div className="main-content">
+          <div className="title">
+            Calorie Needs Calculator
+          </div>
         
-        <div className="popup-content">
-          <ul className="popup-list">
-            <li className="popup-item popup-gain" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-              <span><strong>Weight gain:</strong> {results.gain} kcal</span>
-              <button className="select-goal-btn" onClick={() => saveDailyGoal(results.gain)}>Kiválasztom</button>
-            </li>
-            
-            <li className="popup-item popup-maintain" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-              <span><strong>Maintain:</strong> {results.maintain} kcal</span>
-              <button className="select-goal-btn" onClick={() => saveDailyGoal(results.maintain)}>Kiválasztom</button>
-            </li>
-            
-            <li className="popup-item popup-lose" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-              <span><strong>Losing weight:</strong> {results.lose} kcal</span>
-              <button className="select-goal-btn" onClick={() => saveDailyGoal(results.lose)}>Kiválasztom</button>
-            </li>
-          </ul>
-          
-          <p className="popup-disclaimer">
-            A gombra kattintva a választott érték lesz a napi kereted.
-          </p>
+          <div className="calorie-calculator p-6 max-w-md mx-auto bg-white rounded-lg shadow-md">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Age</label>
+                <input
+                  type="number"
+                  name="age"
+                  value={formData.age}
+                  onChange={handleChange}
+                  min="1"
+                  max="120"
+                  required
+                  className="w-full p-2 border rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Gender</label>
+                <select name="gender" value={formData.gender} onChange={handleChange} className="w-full p-2 border rounded-md">
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Height (cm)</label>
+                <input
+                  type="number"
+                  name="height"
+                  value={formData.height}
+                  onChange={handleChange}
+                  min="100"
+                  max="250"
+                  required
+                  className="w-full p-2 border rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Weight (kg)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  name="weight"
+                  value={formData.weight}
+                  onChange={handleChange}
+                  min="30"
+                  max="300"
+                  required
+                  className="w-full p-2 border rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Activity Level</label>
+                <select name="activity" value={formData.activity} onChange={handleChange} className="w-full p-2 border rounded-md">
+                  {activityOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+              <button type="submit" className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">
+                Calculate
+              </button>
+            </form>
+            {results && (
+              <>
+                <div className="popup-overlay" onClick={() => setResults(null)}></div>
+                <div className="popup-overlay">
+                  <div className="popup-window">
+                    <div className="popup-header">
+                      <h3 className="popup-title">Daily Calorie Recommendations</h3>
+                      <button className="popup-close" onClick={() => setResults(null)}>&times;</button>
+                    </div>
+                    
+                    <div className="popup-content">
+                      <ul className="popup-list">
+                        <li className="popup-item popup-gain" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                          <span><strong>Weight gain:</strong> {results.gain} kcal</span>
+                          <button className="select-goal-btn" onClick={() => saveDailyGoal(results.gain)}>Select</button>
+                        </li>
+                        
+                        <li className="popup-item popup-maintain" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                          <span><strong>Maintain:</strong> {results.maintain} kcal</span>
+                          <button className="select-goal-btn" onClick={() => saveDailyGoal(results.maintain)}>Select</button>
+                        </li>
+                        
+                        <li className="popup-item popup-lose" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                          <span><strong>Weight loss:</strong> {results.lose} kcal</span>
+                          <button className="select-goal-btn" onClick={() => saveDailyGoal(results.lose)}>Select</button>
+                        </li>
+                      </ul>
+                      
+                      <p className="popup-disclaimer">
+                        Clicking a button will set this as your daily target.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
-    </div>
-  </>
-)}
-
-    </div>
-    </div>
-     </div>
-      </Layout>
+    </Layout>
   );
 };
 

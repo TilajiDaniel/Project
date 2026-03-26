@@ -5,7 +5,7 @@ import '../styles/index.css';
 
 const Main = () => {
     const navigate = useNavigate();
-    const [tipText, setTipText] = useState('Üdvözöl az Ételnapló!');
+    const [tipText, setTipText] = useState('Welcome to Food Diary!');
     const [showFirstSetup, setShowFirstSetup] = useState(false);
     const [setupData, setSetupData] = useState({ height: '', weight: '', targetWeight: '' });
     const [activeFaq, setActiveFaq] = useState(null);
@@ -18,13 +18,13 @@ const Main = () => {
     };
 
     const faqData = [
-        { q: "Hogyan működik a kalóriaszámítás?", a: "A megadott adataid alapján a Mifflin-St Jeor egyenletet használjuk az alapanyagcsere (BMR) kiszámításához." },
-        { q: "Miért kell megadnom a cél súlyomat?", a: "Ez segít meghatározni, hogy napi kalóriadeficitre (fogyás) vagy többletre van-e szükséged." },
-        { q: "Módosíthatom később az adataimat?", a: "Igen! A profilbeállítások bármikor újranyithatóak, ha változik a súlyod." },
-        { q: "Mennyi vizet igyak naponta?", a: "A rendszerünk testsúlykilogrammonként kb. 35ml vízzel kalkulál." }
+        { q: "How does calorie calculation work?", a: "We use the Mifflin-St Jeor equation to calculate your Basal Metabolic Rate (BMR) based on your data." },
+        { q: "Why do I need to enter my target weight?", a: "This helps determine whether you need a daily calorie deficit (weight loss) or surplus." },
+        { q: "Can I change my data later?", a: "Yes! Profile settings can be reopened anytime if your weight changes." },
+        { q: "How much water should I drink daily?", a: "Our system calculates approximately 35ml of water per kilogram of body weight." }
     ];
 
-    // Felhasználói állapot lekérése
+    // Fetch user status
     useEffect(() => {
         const fetchUserStatus = async () => {
             const token = localStorage.getItem('token');
@@ -46,16 +46,16 @@ const Main = () => {
                     setIsFinalized(data.setupCompletion >= 3);
                 }
             } catch (error) {
-                console.error("Hiba az állapot lekérésekor:", error);
+                console.error("Error fetching status:", error);
             }
         };
 
         fetchUserStatus();
     }, []);
 
-    // Napi tipp rotáció
+    // Daily tip rotation
     useEffect(() => {
-        const tips = ['Írd fel minden étkezést!', 'Figyelj a Portion méretekre!', 'Igyál elég vizet!', 'Mozogj naponta!'];
+        const tips = ['Log every meal!', 'Watch your portion sizes!', 'Drink enough water!', 'Exercise daily!'];
         let index = 0;
         const interval = setInterval(() => {
             setTipText(tips[index]);
@@ -85,10 +85,10 @@ const Main = () => {
                 setIsProfileDone(true);
                 localStorage.setItem('isProfileDone', 'true');
                 setShowFirstSetup(false);
-                alert("Profil mentve!");
+                alert("Profile saved!");
             }
         } catch (error) { 
-            alert('Hiba történt!'); 
+            alert('An error occurred!'); 
         }
     };
 
@@ -105,10 +105,9 @@ const Main = () => {
 
             if (response.ok) {
                 setIsFinalized(true);
-                alert("Sikeres befejezés!");
             }
         } catch (error) {
-            console.error("Hiba:", error);
+            console.error("Error:", error);
         }
     };
 
@@ -116,21 +115,21 @@ const Main = () => {
         <Layout>
             <div className="page-content">
                 <div className="header-card">
-                    <h1>Üdvözöl az Ételnapló</h1>
-                    <p style={{ color: '#666', marginTop: '10px' }}>Tedd meg az első lépést az egészségesebb éned felé!</p>
+                    <h1>Welcome to Food Diary</h1>
+                    <p style={{ color: '#666', marginTop: '10px' }}>Take the first step toward a healthier you!</p>
                 </div>
 
                 <div className="content-grid">
                     <div className="main-column">
                         <div className="main-panel-card">
-                            <h2>Kezdő lépések</h2>
+                            <h2>First Steps</h2>
                             <div className="stepper-container">
                                 <button 
                                     className="step-button profile"
                                     onClick={() => setShowFirstSetup(true)}
                                     disabled={isProfileDone}
                                 >
-                                    {isProfileDone ? 'Profil kész ✓' : 'Profil beállítás'}
+                                    {isProfileDone ? 'Profile Complete ✓' : 'Set Up Profile'}
                                 </button>
 
                                 <div className="step-separator"></div>
@@ -140,7 +139,7 @@ const Main = () => {
                                     onClick={() => navigate('/Kalorie-kalkulator', { state: { fromMain: true } })}
                                     disabled={isCalorieDone || !isProfileDone}
                                 >
-                                    {isCalorieDone ? 'Kalkulátor kész ✓' : 'Kalóriakalkulátor'}
+                                    {isCalorieDone ? 'Calculator Complete ✓' : 'Calorie Calculator'}
                                 </button>
 
                                 <div className="step-separator"></div>
@@ -150,34 +149,34 @@ const Main = () => {
                                     onClick={handleFinalize}
                                     disabled={!isProfileDone || !isCalorieDone || isFinalized}
                                 >
-                                    {isFinalized ? 'Minden kész ✓' : 'Befejezés'}
+                                    {isFinalized ? 'All Set ✓' : 'Complete Setup'}
                                 </button>
                             </div>
 
                             {isFinalized && (
                                 <div className="success-message">
-                                    <p>Gratulálunk! A rendszer készen áll a használatra.</p>
+                                    <p>Congratulations! The system is ready to use.</p>
                                 </div>
                             )}
                         </div>
 
                         <div className="about-container">
-                            <h2>Küldetésünk</h2>
+                            <h2>Our Mission</h2>
                             <div className="about-content">
-                                <p>Az Ételnapló nem csak egy kalóriaszámláló...</p>
+                                <p>Food Diary is more than just a calorie counter...</p>
                             </div>
                             <div className="about-stats">
                                 <div className="stat-item">
                                     <span>100%</span>
-                                    <label>Ingyenes</label>
+                                    <label>Free</label>
                                 </div>
                                 <div className="stat-item">
-                                    <span>Gyors</span>
-                                    <label>Kezelés</label>
+                                    <span>Fast</span>
+                                    <label>Tracking</label>
                                 </div>
                                 <div className="stat-item">
-                                    <span>Hiteles</span>
-                                    <label>Adatok</label>
+                                    <span>Accurate</span>
+                                    <label>Data</label>
                                 </div>
                             </div>
                         </div>
@@ -185,12 +184,12 @@ const Main = () => {
 
                     <div className="side-column">
                         <div className="side-card tip">
-                            <h3>💡 Napi tipp</h3>
+                            <h3>💡 Daily Tip</h3>
                             <p style={{ fontStyle: 'italic', color: '#4a5568' }}>"{tipText}"</p>
                         </div>
 
                         <div className="faq-container">
-                            <h3>Segítség</h3>
+                            <h3>Help</h3>
                             <div className="faq-accordion">
                                 {faqData.map((item, index) => (
                                     <div key={index} className={`faq-item ${activeFaq === index ? 'active' : ''}`}>
@@ -211,10 +210,10 @@ const Main = () => {
                 {showFirstSetup && (
                     <div className="modal-overlay">
                         <div className="modal-content">
-                            <h3>👋 Alapadatok megadása</h3>
+                            <h3>👋 Basic Data Entry</h3>
                             <form onSubmit={handleSetupSubmit}>
                                 <div className="form-group">
-                                    <label>Magasság (cm)</label>
+                                    <label>Height (cm)</label>
                                     <input 
                                         type="number" 
                                         value={setupData.height} 
@@ -223,7 +222,7 @@ const Main = () => {
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label>Jelenlegi súly (kg)</label>
+                                    <label>Current Weight (kg)</label>
                                     <input 
                                         type="number" 
                                         value={setupData.weight} 
@@ -232,7 +231,7 @@ const Main = () => {
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label>Cél súly (kg)</label>
+                                    <label>Target Weight (kg)</label>
                                     <input 
                                         type="number" 
                                         value={setupData.targetWeight} 
@@ -240,9 +239,9 @@ const Main = () => {
                                         required 
                                     />
                                 </div>
-                                <button type="submit" className="step-button calc">Mentés</button>
+                                <button type="submit" className="step-button calc">Save</button>
                                 <button type="button" className="cancel-btn" onClick={() => setShowFirstSetup(false)}>
-                                    Mégse
+                                    Cancel
                                 </button>
                             </form>
                         </div>

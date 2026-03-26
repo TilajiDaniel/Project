@@ -33,12 +33,12 @@ export default function Login() {
     <Layout showNav={false}>
       <div className="auth-container">
         <div className="auth-card">
-          <h2>🔐 Bejelentkezés</h2>
+          <h2> Login</h2>
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <input
                 name="username"
-                placeholder="Felhasználónév"
+                placeholder="Username"
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, [e.target.name]: e.target.value })}
                 required
@@ -48,7 +48,7 @@ export default function Login() {
               <input
                 type={showPassword ? 'text' : 'password'}
                 name="password"
-                placeholder="Jelszó"
+                placeholder="Password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, [e.target.name]: e.target.value })}
                 required
@@ -63,10 +63,10 @@ export default function Login() {
             </div>
             {error && <div className="error">{error}</div>}
             <button type="submit" disabled={loading}>
-              {loading ? 'Belépés...' : 'Bejelentkezés'}
+              {loading ? 'Signing in...' : 'Login'}
             </button>
           </form>
-          <p>Nincs fiókod? <Link to="/register">Regisztrálj</Link></p>
+          <p> Don't have an account? <Link to="/register">Sign up</Link></p>
         </div>
       </div>
     </Layout>

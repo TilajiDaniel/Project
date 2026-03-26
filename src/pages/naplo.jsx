@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
+import { useNavigate } from 'react-router-dom';
 import '../styles/Naplo.css'; 
 
 const Naplo = () => {
@@ -7,10 +8,12 @@ const Naplo = () => {
   const [weight, setWeight] = useState(''); 
   const [displayWeight, setDisplayWeight] = useState('--');
   const [loading, setLoading] = useState(false);
+  const [targetWeight, setTargetWeight] = useState(null);
 
   const authToken = localStorage.getItem('token');
+  const navigate = useNavigate();
 
-  // Oldal betöltésekor lekérdezzük a mai adatot
+  // Load today's data on page load
   useEffect(() => {
     fetchTodayWater();
     fetchTodayWeight();
@@ -22,8 +25,7 @@ const Naplo = () => {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${authToken}`, 
-        'Content-Type': 'application/json'
-          
+          'Content-Type': 'application/json'
         }
       });
 
@@ -32,7 +34,7 @@ const Naplo = () => {
         setWaterIntake(data.amountMilliliters || 0); 
       }
     } catch (error) {
-      console.error('Hiba a víz lekérésekor:', error);
+      console.error('Error fetching water:', error);
     }
   };
 
@@ -40,7 +42,7 @@ const Naplo = () => {
     if (loading) return;
     setLoading(true);
 
-    // Optimista frissítés a UI-on
+    // Optimistic UI update
     const previousValue = waterIntake;
     setWaterIntake(prev => prev + amountToAdd);
 
@@ -60,21 +62,21 @@ const Naplo = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Szerver hiba');
+        throw new Error('Server error');
       }
       
       fetchTodayWater();
 
     } catch (error) {
-      console.error('Hiba a mentés során:', error);
-      alert('Nem sikerült elmenteni a vizet!');
+      console.error('Error saving water:', error);
+      alert('Failed to save water!');
       setWaterIntake(previousValue);
     } finally {
       setLoading(false);
     }
   };
 
-  // --- SÚLY FUNKCIÓK ---
+  // --- WEIGHT FUNCTIONS ---
   const fetchTodayWeight = async () => {
     try {
       const response = await fetch('https://localhost:7133/api/Weight/today', {
@@ -90,7 +92,7 @@ const Naplo = () => {
         setDisplayWeight(data.weight ? data.weight.toFixed(1) : '--');
       }
     } catch (error) {
-      console.error('Hiba a súly lekérésekor:', error);
+      console.error('Error fetching weight:', error);
     }
   };
 
@@ -119,51 +121,49 @@ const Naplo = () => {
 
       if (response.ok) {
         setDisplayWeight(weightValue.toFixed(1));
-        // Frissítjük a mai súlyt a szerverről
         await fetchTodayWeight();
-        alert("Súly sikeresen rögzítve!");
+        alert("Weight saved successfully!");
       } else {
-        throw new Error('Szerver hiba');
+        throw new Error('Server error');
       }
     } catch (error) {
-      console.error("Hiba a súly mentésekor:", error);
+      console.error("Error saving weight:", error);
       setDisplayWeight(previousDisplayWeight);
-      alert('Nem sikerült elmenteni a súlyt!');
+      alert('Failed to save weight!');
     } finally {
       setLoading(false);
     }
   };
-const [targetWeight, setTargetWeight] = useState(null);
 
-useEffect(() => {
-  const fetchGoal = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('https://localhost:7133/api/User/my-goal', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+  useEffect(() => {
+    const fetchGoal = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('https://localhost:7133/api/User/my-goal', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
 
-      if (response.ok) {
-        const data = await response.json();
-        setTargetWeight(data.targetWeight);
+        if (response.ok) {
+          const data = await response.json();
+          setTargetWeight(data.targetWeight);
+        }
+      } catch (error) {
+        console.error("Error fetching target weight:", error);
       }
-    } catch (error) {
-      console.error("Hiba a cél súly lekérésekor:", error);
-    }
-  };
+    };
 
-  fetchGoal();
-}, []);
+    fetchGoal();
+  }, []);
+
   return (
     <Layout>
       <div className="container">
         <div className="main-content">
-          <div className="title">Napló - Mai összefoglaló</div>
+          <div className="title">Diary - Daily Summary</div>
 
           <div className="content-grid">
-            {/* SÚLY PANEL */}
             <div className="main-panel weight-card">
-              <h3>⚖️ Napi súly</h3>
+              <h3>⚖️ Daily Weight</h3>
               <div className="weight-display">
                 <span className="weight-val">{displayWeight}</span>
                 <span className="weight-unit"> kg</span>  
@@ -181,21 +181,20 @@ useEffect(() => {
                   onClick={handleWeightSubmit} 
                   disabled={loading || !weight || weight === ''}
                 >
-                  {loading ? 'Mentés...' : 'Mentés'}
+                  {loading ? 'Saving...' : 'Save'}
                 </button>
               </div>
             </div>
             
             <div className="main-panel">
-  <h3>🎯 Cél súly</h3>
-  <div className="weight-display">
-    {targetWeight ? `${targetWeight} kg` : "Nincs megadva"}
-  </div>
-</div>
+              <h3>🎯 Target Weight</h3>
+              <div className="weight-display">
+                {targetWeight ? `${targetWeight} kg` : "Not set"}
+              </div>
+            </div>
             
-            {/* Vízfogyasztás Szekció */}
             <div className="main-panel water-card">
-              <h3>💧 Vízfogyasztás</h3>
+              <h3>💧 Water Intake</h3>
               <div className="water-display">
                 <span className="water-amount">{waterIntake}</span>
                 <span className="water-unit"> ml</span>
@@ -208,9 +207,10 @@ useEffect(() => {
                   <button onClick={() => addWater(500)} disabled={loading}>+ 500 ml</button>
                 </div>
               </div>
-              
             </div>
-            <div className="main-panel"><button onClick={() => window.location.href = "/etel-elrendezese"}>🍽️ Napi étkezések</button></div>
+            <div className="main-panel">
+              <button onClick={() => window.location.href = "/etel-elrendezese"}>🍽️ Daily Meals</button>
+            </div>
           </div>
         </div>
       </div>

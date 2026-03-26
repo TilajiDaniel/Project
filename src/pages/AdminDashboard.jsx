@@ -48,14 +48,14 @@ const AdminDashboard = () => {
             });
 
         } catch (error) {
-            console.error("Hiba az adatok betöltésekor:", error);
+            console.error("Error loading data:", error);
         } finally {
             setLoading(false);
         }
     };
 
     const deleteUser = async (userId) => {
-        if (!window.confirm("Biztosan törölni szeretnéd ezt a felhasználót?")) return;
+        if (!window.confirm("Are you sure you want to delete this user?")) return;
 
         try {
             const response = await fetch(`https://localhost:7133/api/User/DeleteUser/${userId}`, {
@@ -63,24 +63,24 @@ const AdminDashboard = () => {
                 headers: { 
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
-                  }
+                }
             });
 
             if (response.ok) {
                 const updatedUsers = users.filter(u => u.userId !== userId);
                 setUsers(updatedUsers);
                 setStats(prev => ({ ...prev, totalUsers: updatedUsers.length }));
-                alert("Felhasználó törölve!");
+                alert("User deleted!");
             } else {
-                alert("Hiba történt a törlés során!");
+                alert("Error occurred during deletion!");
             }
         } catch (error) {
-            console.error("Hiba a törlésnél:", error);
+            console.error("Error deleting:", error);
         }
     };
 
     const deleteFood = async (foodId) => {
-        if (!window.confirm("Biztosan törölni szeretnéd ezt az ételt?")) return;
+        if (!window.confirm("Are you sure you want to delete this food item?")) return;
 
         try {
             const response = await fetch(`https://localhost:7133/api/FoodItem/DeleteFoodItem/${foodId}`, {
@@ -95,87 +95,83 @@ const AdminDashboard = () => {
                 const updatedFoods = foodItems.filter(f => f.foodId !== foodId);
                 setFoodItems(updatedFoods);
                 setStats(prev => ({ ...prev, totalFoods: updatedFoods.length }));
-                alert("Étel törölve!");
+                alert("Food item deleted!");
             }
         } catch (error) {
-            alert("Hiba a törlés során!");
+            alert("Error during deletion!");
         }
     };
 
     const handleUpdate = async (e) => {
-    e.preventDefault();
-    
-    const payload = {
-        foodId: Number(editingFood.foodId),
-        name: editingFood.name.trim(),
-        categoryId: Number(editingFood.categoryId),
-        caloriesPer100g: Number(editingFood.caloriesPer100g) || 0,
-        proteinPer100g: Number(editingFood.proteinPer100g) || 0,
-        carbsPer100g: Number(editingFood.carbsPer100g) || 0,
-        fatPer100g: Number(editingFood.fatPer100g) || 0,
-        category: {
+        e.preventDefault();
+        
+        const payload = {
+            foodId: Number(editingFood.foodId),
+            name: editingFood.name.trim(),
             categoryId: Number(editingFood.categoryId),
-            categoryName: "Frissített kategória",
-            description: "Admin által frissítve"
-        },
-        mealFoodItems: [] 
+            caloriesPer100g: Number(editingFood.caloriesPer100g) || 0,
+            proteinPer100g: Number(editingFood.proteinPer100g) || 0,
+            carbsPer100g: Number(editingFood.carbsPer100g) || 0,
+            fatPer100g: Number(editingFood.fatPer100g) || 0,
+            category: {
+                categoryId: Number(editingFood.categoryId),
+                categoryName: "Updated category",
+                description: "Updated by admin"
+            },
+            mealFoodItems: [] 
+        };
+
+        try {
+            const res = await fetch(`https://localhost:7133/api/FoodItem/UpdateFoodItem/${editingFood.foodId}`, {
+                method: 'PUT',
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                const errorText = await res.text();
+                return;
+            }
+
+            setEditingFood(null);
+            fetchAllData();
+        } catch (err) {
+        }
     };
 
-    try {
-        const res = await fetch(`https://localhost:7133/api/FoodItem/UpdateFoodItem/${editingFood.foodId}`, {
-            method: 'PUT',
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
-
-        if (!res.ok) {
-            const errorText = await res.text();
-            alert(`❌ Hiba: ${res.status} - ${errorText}`);
-            return;
-        }
-
-        alert("✅ SIKERES FRISSÍTÉS!");
-        setEditingFood(null);
-        fetchAllData();
-    } catch (err) {
-        alert("❌ Hálózati hiba!");
-    }
-};
-
-
-    if (loading) return <div className="loader">Admin adatok betöltése...</div>;
+    if (loading) return <div className="loader">Loading admin data...</div>;
 
     return (
         <div className="admin-container">
-          <button className="back-to-main" onClick={() => navigate('/MainPage')}>
-                ⬅ Vissza a főoldalra
+            <button className="back-to-main" onClick={() => navigate('/MainPage')}>
+                ⬅ Back to Home
             </button>
-            <h1>⚙️ Adminisztrációs Panel</h1>
+            <h1>⚙️ Admin Dashboard</h1>
 
             <div className="stats-row">
                 <div className="stat-card">
-                    <h3>Összes felhasználó</h3>
+                    <h3>Total Users</h3>
                     <p className="stat-number">{stats.totalUsers}</p>
                 </div>
                 <div className="stat-card">
-                    <h3>Összes étel</h3>
+                    <h3>Total Foods</h3>
                     <p className="stat-number">{stats.totalFoods}</p>
                 </div>
             </div>
 
             <div className="table-container">
-                <h2>Regisztrált Felhasználók</h2>
+                <h2>Registered Users</h2>
                 <table className="admin-table">
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Felhasználónév</th>
+                            <th>Username</th>
                             <th>Email</th>
-                            <th>Jogosultság</th>
-                            <th>Műveletek</th>
+                            <th>Role</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -186,7 +182,7 @@ const AdminDashboard = () => {
                                 <td>{user.email}</td>
                                 <td>
                                     <span className={`badge ${user.privilege === 3 ? 'badge-admin' : 'badge-user'}`}>
-                                        {user.privilege === 3 ? 'Admin' : 'Tag'}
+                                        {user.privilege === 3 ? 'Admin' : 'User'}
                                     </span>
                                 </td>
                                 <td>
@@ -195,7 +191,7 @@ const AdminDashboard = () => {
                                         className="delete-btn"
                                         disabled={user.privilege === 3}
                                     >
-                                        Törlés
+                                        Delete
                                     </button>
                                 </td>
                             </tr>
@@ -205,15 +201,15 @@ const AdminDashboard = () => {
             </div>
 
             <div className="section-header">
-                <h2>Élelmiszer Adatbázis</h2>
+                <h2>Food Database</h2>
             </div>
 
             {editingFood && (
                 <div className="edit-form-container">
-                    <h3>Étel szerkesztése: {editingFood.name}</h3>
+                    <h3>Edit Food: {editingFood.name}</h3>
                     <form onSubmit={handleUpdate}>
                         <div className="form-group">
-                            <label>Étel neve</label>
+                            <label>Food Name</label>
                             <input 
                                 type="text" 
                                 value={editingFood.name} 
@@ -226,7 +222,7 @@ const AdminDashboard = () => {
                                 
                             </div>
                             <div className="form-group">
-                                <label>Kalória (100g)</label>
+                                <label>Calories (100g)</label>
                                 <input 
                                     type="number" 
                                     value={editingFood.caloriesPer100g} 
@@ -234,7 +230,7 @@ const AdminDashboard = () => {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Fehérje (100g)</label>
+                                <label>Protein (100g)</label>
                                 <input 
                                     type="number" 
                                     value={editingFood.proteinPer100g} 
@@ -242,7 +238,7 @@ const AdminDashboard = () => {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Szénhidrát (100g)</label>
+                                <label>Carbs (100g)</label>
                                 <input 
                                     type="number" 
                                     value={editingFood.carbsPer100g} 
@@ -250,7 +246,7 @@ const AdminDashboard = () => {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Zsír (100g)</label>
+                                <label>Fat (100g)</label>
                                 <input 
                                     type="number" 
                                     value={editingFood.fatPer100g} 
@@ -259,8 +255,8 @@ const AdminDashboard = () => {
                             </div>
                         </div>
                         <div className="edit-actions">
-                            <button type="submit" className="save-btn">Mentés</button>
-                            <button type="button" className="cancel-btn" onClick={() => setEditingFood(null)}>Mégse</button>
+                            <button type="submit" className="save-btn">Save</button>
+                            <button type="button" className="cancel-btn" onClick={() => setEditingFood(null)}>Cancel</button>
                         </div>
                     </form>
                 </div>
@@ -271,13 +267,13 @@ const AdminDashboard = () => {
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Név</th>
-                            <th>Kategória</th>
-                            <th>Kalória (100g)</th>
-                            <th>Fehérje</th>
-                            <th>Szénhidrát</th>
-                            <th>Zsír</th>
-                            <th>Műveletek</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Calories (100g)</th>
+                            <th>Protein</th>
+                            <th>Carbs</th>
+                            <th>Fat</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -291,8 +287,8 @@ const AdminDashboard = () => {
                                 <td>{food.carbsPer100g}g</td>
                                 <td>{food.fatPer100g}g</td>
                                 <td>
-                                    <button className="edit-btn" onClick={() => setEditingFood(food)}>Szerkesztés</button>
-                                    <button className="delete-btn" onClick={() => deleteFood(food.foodId)}>Törlés</button>
+                                    <button className="edit-btn" onClick={() => setEditingFood(food)}>Edit</button>
+                                    <button className="delete-btn" onClick={() => deleteFood(food.foodId)}>Delete</button>
                                 </td>
                             </tr>
                         ))}
