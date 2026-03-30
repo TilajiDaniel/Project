@@ -77,15 +77,6 @@
   overflow: hidden;
 }
 
-.food-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #f59e0b, #d97706);
-}
 
 .food-card:hover {
   transform: translateY(-6px);

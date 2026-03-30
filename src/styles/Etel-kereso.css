@@ -40,10 +40,7 @@
     transition: all 0.3s;
 }
 
-.search-bar button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(102,126,234,0.4);
-}
+
 
 .category-cards {
     display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0;
