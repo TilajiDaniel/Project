@@ -186,7 +186,7 @@ We believe that maintaining a healthy lifestyle should not be complicated. By co
 
                     <div className="side-column">
                         <div className="side-card tip">
-                            <h3>💡 Daily Tip</h3>
+                            <h3> Daily Tip</h3>
                             <p style={{ fontStyle: 'italic', color: '#4a5568' }}>"{tipText}"</p>
                         </div>
 

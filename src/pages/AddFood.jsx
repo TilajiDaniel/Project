@@ -94,7 +94,7 @@ const AddFood = () => {
       <div className="container">
         <div className="main-content">
           <div className="title">
-            🍽️ Add {selectedFood.name}
+             Add {selectedFood.name}
           </div>
           
           <div className="add-food-card">
@@ -103,10 +103,10 @@ const AddFood = () => {
               <div className="food-details">
                 <h2>{selectedFood.name}</h2>
                 <div className="base-nutrients">
-                  <span>🔥 {selectedFood.calories} kcal/100g</span>
-                  <span>💪 {selectedFood.protein}g protein</span>
-                  <span>🍞 {selectedFood.carbs}g carbs</span>
-                  <span>🧈 {selectedFood.fat}g fat</span>
+                  <span> {selectedFood.calories} kcal/100g</span>
+                  <span> {selectedFood.protein}g protein</span>
+                  <span> {selectedFood.carbs}g carbs</span>
+                  <span> {selectedFood.fat}g fat</span>
                 </div>
               </div>
             </div>
@@ -145,7 +145,6 @@ const AddFood = () => {
               </div>
             </div>
 
-            {/* Meal selector */}
             <div className="meal-selector">
               <h3>Where to add?</h3>
               <div className="meal-buttons">
@@ -154,21 +153,21 @@ const AddFood = () => {
                   onClick={() => addToMeal('breakfast')}
                   disabled={saving}
                 >
-                  {saving ? '⏳ Saving...' : '☀️ Breakfast'}
+                  {saving ? ' Saving...' : ' Breakfast'}
                 </button>
                 <button 
                   className="meal-btn lunch"
                   onClick={() => addToMeal('lunch')}
                   disabled={saving}
                 >
-                  {saving ? '⏳ Saving...' : '🍲 Lunch'}
+                  {saving ? ' Saving...' : ' Lunch'}
                 </button>
                 <button 
                   className="meal-btn dinner"
                   onClick={() => addToMeal('dinner')}
                   disabled={saving}
                 >
-                  {saving ? '⏳ Saving...' : '🌙 Dinner'}
+                  {saving ? ' Saving...' : ' Dinner'}
                 </button>
               </div>
             </div>

@@ -117,7 +117,7 @@ const EtelkElrendezese = () => {
 
           {meals.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-icon">🍽️</div>
+              <div className="empty-icon"></div>
               <p>No meals saved today yet</p>
               <button className="primary-btn" onClick={fetchTodayMeals}>
                  Refresh

@@ -82,21 +82,21 @@ const EtelKereses = () => {
 
   const renderFoodCards = () => {
     if (loading) {
-      return <div style={{textAlign: 'center', color: '#666', gridColumn: '1/-1'}}>⏳ Loading...</div>;
+      return <div style={{textAlign: 'center', color: '#666', gridColumn: '1/-1'}}> Loading...</div>;
     }
 
     if (filteredFoods.length === 0) {
-      return <div style={{textAlign: 'center', color: '#666', gridColumn: '1/-1'}}>🔍 No results found</div>;
+      return <div style={{textAlign: 'center', color: '#666', gridColumn: '1/-1'}}> No results found</div>;
     }
 
     return filteredFoods.map((food, index) => (
       <div key={food.id || food.foodItemId || index} className="food-card">
         <h3>{food.name || 'No name'}</h3>
         <div className="nutrients">
-          <span>🔥 Calories: {food.caloriesPer100g || 0} kcal</span>
-          <span>💪 Protein: {food.proteinPer100g || 0}g</span>
-          <span>🍞 Carbs: {food.carbsPer100g || 0}g</span>
-          <span>🧈 Fat: {food.fatPer100g || 0}g</span>
+          <span> Calories: {food.caloriesPer100g || 0} kcal</span>
+          <span> Protein: {food.proteinPer100g || 0}g</span>
+          <span> Carbs: {food.carbsPer100g || 0}g</span>
+          <span> Fat: {food.fatPer100g || 0}g</span>
         </div>
         <small>Category: {food.category?.categoryName || food.category?.CategoryName || 'Other'}</small>
         <button onClick={() => addFoodToNaplo(food)} className="add-food-btn">Add</button>

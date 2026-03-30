@@ -24,7 +24,7 @@ export default function NavHeader() {
   return (
     <header className={`nav-header ${mobileMenuOpen ? 'menu-open' : ''}`}>
       <div className="nav-brand">
-        <h2>🍽️ NutriTrack</h2>
+        <h2> NutriTrack</h2>
         {user && <span>Hi, {user.username}!</span>}
       </div>
       

@@ -13,7 +13,6 @@ const Naplo = () => {
   const authToken = localStorage.getItem('token');
   const navigate = useNavigate();
 
-  // Load today's data on page load
   useEffect(() => {
     fetchTodayWater();
     fetchTodayWeight();
@@ -42,7 +41,6 @@ const Naplo = () => {
     if (loading) return;
     setLoading(true);
 
-    // Optimistic UI update
     const previousValue = waterIntake;
     setWaterIntake(prev => prev + amountToAdd);
 
@@ -76,7 +74,6 @@ const Naplo = () => {
     }
   };
 
-  // --- WEIGHT FUNCTIONS ---
   const fetchTodayWeight = async () => {
     try {
       const response = await fetch('https://localhost:7133/api/Weight/today', {
@@ -161,7 +158,7 @@ const Naplo = () => {
 
           <div className="content-grid">
             <div className="main-panel weight-card">
-              <h3>⚖️ Daily Weight</h3>
+              <h3> Daily Weight</h3>
               <div className="weight-display">
                 <span className="weight-val">{displayWeight}</span>
                 <span className="weight-unit"> kg</span>  
@@ -185,14 +182,14 @@ const Naplo = () => {
             </div>
             
             <div className="main-panel">
-              <h3>🎯 Target Weight</h3>
+              <h3> Target Weight</h3>
               <div className="weight-display">
                 {targetWeight ? `${targetWeight} kg` : "Not set"}
               </div>
             </div>
             
             <div className="main-panel water-card">
-              <h3>💧 Water Intake</h3>
+              <h3> Water Intake</h3>
               <div className="water-display">
                 <span className="water-amount">{waterIntake}</span>
                 <span className="water-unit"> ml</span>
@@ -207,7 +204,7 @@ const Naplo = () => {
               </div>
             </div>
             <div className="main-panel">
-              <button onClick={() => window.location.href = "/etel-elrendezese"}>🍽️ Daily Meals</button>
+              <button onClick={() => window.location.href = "/etel-elrendezese"}> Daily Meals</button>
             </div>
           </div>
         </div>
