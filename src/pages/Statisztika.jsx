@@ -22,7 +22,7 @@ const Statisztika = () => {
   useEffect(() => {
     fetchWeeklyStats();
   }, []);
-
+// Function to fetch weekly statistics from the API and format it for the charts
   const fetchWeeklyStats = async () => {
     try {
       const response = await fetch('https://localhost:7133/api/Registry/weekly-stats', {

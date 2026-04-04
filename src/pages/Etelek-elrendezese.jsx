@@ -12,11 +12,11 @@ const EtelkElrendezese = () => {
 
   const authToken = localStorage.getItem('token');
   const navigate = useNavigate();
-
+// Fetch today's meals on component mount
   useEffect(() => {
     fetchTodayMeals();
   }, []);
-
+// Function to fetch today's meals from the API
   const fetchTodayMeals = async () => {
     try {
       setLoading(true);
@@ -41,7 +41,7 @@ const EtelkElrendezese = () => {
       setLoading(false);
     }
   };
-
+// Function to handle deletion of a meal item
   const deleteMealItem = async (mealId, foodId) => {
     if (!confirm('Are you sure you want to delete this food item?')) return;
 

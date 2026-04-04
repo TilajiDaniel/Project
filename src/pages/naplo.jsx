@@ -17,7 +17,7 @@ const Naplo = () => {
     fetchTodayWater();
     fetchTodayWeight();
   }, []);
-
+// Function to fetch today's water intake from the Database and display it  
   const fetchTodayWater = async () => {
     try {
       const response = await fetch('https://localhost:7133/api/WaterIntake/today', {
@@ -36,7 +36,7 @@ const Naplo = () => {
       console.error('Error fetching water:', error);
     }
   };
-
+// Function to add water intake and save it to the Database
   const addWater = async (amountToAdd) => {
     if (loading) return;
     setLoading(true);
@@ -73,7 +73,7 @@ const Naplo = () => {
       setLoading(false);
     }
   };
-
+// Function to fetch today's weight from the Database and display it
   const fetchTodayWeight = async () => {
     try {
       const response = await fetch('https://localhost:7133/api/Weight/today', {
@@ -92,7 +92,7 @@ const Naplo = () => {
       console.error('Error fetching weight:', error);
     }
   };
-
+// Function to handle weight input changes and save to the Database
   const handleWeightSubmit = async () => {
     if (!weight || weight === '' || loading) return;
     setLoading(true);

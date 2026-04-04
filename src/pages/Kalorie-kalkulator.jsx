@@ -29,11 +29,11 @@ const Kalorie = () => {
     'very active': 1.725,
     'extremely active': 1.9
   };
-
+// Function to handle form input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
+// Function to calculate BMR based on the Mifflin-St Jeor Equation
   const calculateBMR = (weightKg, heightCm, age, gender) => {
     if (gender === 'male') {
       return 10 * weightKg + 6.25 * heightCm - 5 * age + 5;
@@ -41,7 +41,7 @@ const Kalorie = () => {
       return 10 * weightKg + 6.25 * heightCm - 5 * age - 161;
     }
   };
-
+// Function to handle form submission and calculate calorie needs
   const handleSubmit = (e) => {
     e.preventDefault();
     const ageNum = parseInt(formData.age);
@@ -58,7 +58,7 @@ const Kalorie = () => {
       lose: Math.round(maintenance - 500)
     });
   };
-
+// Function to save the selected daily calorie goal to the API
   const saveDailyGoal = async (calories) => {
     const token = localStorage.getItem('token');
     

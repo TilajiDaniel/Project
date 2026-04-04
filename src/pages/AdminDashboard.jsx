@@ -12,11 +12,11 @@ const AdminDashboard = () => {
     const navigate = useNavigate();
 
     const token = localStorage.getItem('token');
-
+// Fetch users and food items on component mount
     useEffect(() => {
         fetchAllData();
     }, []);
-
+// Function to fetch all necessary data for the dashboard
     const fetchAllData = async () => {
         setLoading(true);
         try {
@@ -53,7 +53,7 @@ const AdminDashboard = () => {
             setLoading(false);
         }
     };
-
+// Function to handle user deletion
     const deleteUser = async (userId) => {
         if (!window.confirm("Are you sure you want to delete this user?")) return;
 
@@ -78,7 +78,7 @@ const AdminDashboard = () => {
             console.error("Error deleting:", error);
         }
     };
-
+// Function to handle food deletion
     const deleteFood = async (foodId) => {
         if (!window.confirm("Are you sure you want to delete this food item?")) return;
 
@@ -101,7 +101,7 @@ const AdminDashboard = () => {
             alert("Error during deletion!");
         }
     };
-
+// Function to handle food updates
     const handleUpdate = async (e) => {
         e.preventDefault();
         

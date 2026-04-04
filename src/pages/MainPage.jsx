@@ -27,7 +27,7 @@ const Main = () => {
         a: "Yes, it's required. The calculator data feeds into your Statistics page and Diary dashboard, providing personalized daily calorie and water goals." 
         }
     ];
-
+// Effect to check user setup status on component mount
     useEffect(() => {
         const fetchUserStatus = async () => {
             const token = localStorage.getItem('token');
@@ -55,17 +55,14 @@ const Main = () => {
 
         fetchUserStatus();
     }, []);
-
+// Effect to rotate daily tips
     useEffect(() => {
         const tips = ['Log every meal!', 'Watch your portion sizes!', 'Drink enough water!', 'Exercise daily!'];
-        let index = 0;
-        const interval = setInterval(() => {
-            setTipText(tips[index]);
-            index = (index + 1) % tips.length;
-        }, 4000);
-        return () => clearInterval(interval);
+        const currentDay = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+        const index = currentDay % tips.length;
+    setTipText(tips[index]);
     }, []);
-
+// Function to handle first setup form submission
     const handleSetupSubmit = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem('token');
@@ -91,7 +88,7 @@ const Main = () => {
         } catch (error) { 
         }
     };
-
+// Function to handle finalizing the setup process
     const handleFinalize = async () => {
         const token = localStorage.getItem('token');
         try {

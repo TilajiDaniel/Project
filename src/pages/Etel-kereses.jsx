@@ -22,7 +22,7 @@ const EtelKereses = () => {
   useEffect(() => {
     loadFoods();
   }, []);
-
+// Function to load food items from the API
   const loadFoods = async () => {
     setLoading(true);
     try {
@@ -44,7 +44,7 @@ const EtelKereses = () => {
       setLoading(false);
     }
   };
-
+// Effect to filter foods based on search term and active category
   useEffect(() => {
     let filtered = allFoods;
     
@@ -69,17 +69,17 @@ const EtelKereses = () => {
     
     setFilteredFoods(filtered);
   }, [allFoods, activeCategory, searchTerm]);
-
+// Function to handle category filtering
   const filterByCategory = (categoryName) => {
     setActiveCategory(categoryName === 'All' ? 'all' : categoryName);
   };
-
+// Function to handle search term changes
   const handleSearch = (term) => {
     setSearchTerm(term);
   };
   
   const categories = ['All', ...Object.entries(categoryNames).map(([id, name]) => name)];
-
+// Function to render food cards based on the current state
   const renderFoodCards = () => {
     if (loading) {
       return <div style={{textAlign: 'center', color: '#666', gridColumn: '1/-1'}}> Loading...</div>;
@@ -103,7 +103,7 @@ const EtelKereses = () => {
       </div>
     ));
   };
-
+// Function to handle adding a food item to the daily log
   const addFoodToNaplo = (food) => {
     console.log("Clicked food raw data from API:", food);
     const foodData = encodeURIComponent(JSON.stringify({

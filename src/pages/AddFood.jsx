@@ -11,7 +11,7 @@ const AddFood = () => {
   const [selectedFood, setSelectedFood] = useState(null);
   const [quantity, setQuantity] = useState(100);
   const [saving, setSaving] = useState(false);
-
+// Retrieve food data from query parameters on component mount
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const foodData = params.get('food');
@@ -28,7 +28,7 @@ const AddFood = () => {
       navigate('/etel-kereses');
     }
   }, [location.search, navigate]);
-
+// Function to handle adding food to a meal
   const addToMeal = async (mealType) => {
     setSaving(true);
     
