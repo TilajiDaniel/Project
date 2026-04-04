@@ -161,8 +161,7 @@ const Main = () => {
                             <h2>Our Mission</h2>
                             <div className="about-content">
                                 <p>Our mission is to help people build healthier lifestyles through simple and accessible technology. With NutriTrack, we aim to provide users with an easy-to-use platform where they can track their daily habits, understand their nutritional intake, and stay motivated to reach their goals.
-
-We believe that maintaining a healthy lifestyle should not be complicated. By combining clear data, intuitive design, and personalized insights, NutriTrack empowers users to make better decisions about their health every day.</p>
+                                We believe that maintaining a healthy lifestyle should not be complicated. By combining clear data, intuitive design, and personalized insights, NutriTrack empowers users to make better decisions about their health every day.</p>
                             </div>
                             <div className="about-stats">
                                 <div className="stat-item">

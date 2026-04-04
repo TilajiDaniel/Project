@@ -97,7 +97,7 @@ const EtelkElrendezese = () => {
           <div className="title">Today's Meals</div>
 
           {meals.length > 0 && (
-            <div className="summary-cards">
+            <div className="summary-cards" >
               <div className="summary-card">
                 <span>Total Calories</span>
                 <strong>{totalCalories.toLocaleString()} kcal</strong>

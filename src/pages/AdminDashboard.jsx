@@ -147,9 +147,9 @@ const AdminDashboard = () => {
     return (
         <div className="admin-container">
             <button className="back-to-main" onClick={() => navigate('/MainPage')}>
-                ⬅ Back to Home
+                Back to Home
             </button>
-            <h1>⚙️ Admin Dashboard</h1>
+            <h1> Admin Dashboard</h1>
 
             <div className="stats-row">
                 <div className="stat-card">
@@ -161,9 +161,10 @@ const AdminDashboard = () => {
                     <p className="stat-number">{stats.totalFoods}</p>
                 </div>
             </div>
-
-            <div className="table-container">
+            <div className="section-header">
                 <h2>Registered Users</h2>
+            </div>
+            <div className="table-container">
                 <table className="admin-table">
                     <thead>
                         <tr>

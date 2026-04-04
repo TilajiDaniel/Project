@@ -168,13 +168,18 @@
   box-shadow: 0 10px 25px rgba(59, 130, 246, 0.5);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 600px) {
   .foods-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
   .summary-cards {
     grid-template-columns: 1fr;
   }
+  
 }
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
