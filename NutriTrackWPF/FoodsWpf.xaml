@@ -45,7 +45,8 @@
         <DataGrid x:Name="FoodsGrid" Grid.Row="2" AutoGenerateColumns="False" 
                   Background="White" RowBackground="White" AlternatingRowBackground="#F8F9F9"
                   HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E5E7E9"
-                  BorderThickness="1" BorderBrush="#BDC3C7" CanUserAddRows="False">
+                  BorderThickness="1" BorderBrush="#BDC3C7" CanUserAddRows="False"
+                  RowEditEnding="FoodsGrid_RowEditEnding">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID" Binding="{Binding FoodId}" Width="50" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>

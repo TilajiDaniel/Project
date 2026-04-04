@@ -105,5 +105,34 @@ namespace NutriTrackWPF
                 }
             }
         }
+        private void UsersGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+        {
+            if (e.EditAction == DataGridEditAction.Commit)
+            {
+                var editedUser = e.Row.Item as User;
+
+                if (editedUser != null)
+                {
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        try
+                        {
+                            using (var context = new TesztContext())
+                            {
+                                context.Users.Update(editedUser);
+                                context.SaveChanges();
+                            }
+
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"An error occurred while saving the changes: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                            LoadData();
+                        }
+                    }), System.Windows.Threading.DispatcherPriority.Background);
+                }
+            }
+        }
     }
 }
