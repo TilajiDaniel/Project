@@ -4,7 +4,6 @@ namespace NutriTrack.Helpers
 {
     public static class PasswordHasher
     {
-        // 12-es erősség (standard)
         private const int WorkFactor = 12;
 
         public static string HashPassword(string password)

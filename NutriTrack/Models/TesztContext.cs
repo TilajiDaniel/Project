@@ -1,6 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 
 namespace NutriTrack.Models;
 
@@ -34,7 +35,15 @@ public partial class TesztContext : DbContext
     public virtual DbSet<WeightGoal> WeightGoals { get; set; }
 
     public virtual DbSet<WeightLog> WeightLogs { get; set; }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            string connectionString = "SERVER = localhost; PORT = 3306; DATABASE = vizsga; USER = root; PASSWORD =; ";
 
+            optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+        }
+    }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<FoodCategory>(entity =>
@@ -374,4 +383,5 @@ public partial class TesztContext : DbContext
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
 }

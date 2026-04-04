@@ -21,9 +21,14 @@ namespace NutriTrackWPF
             InitializeComponent();
         }
 
-        private void Torlesbtn_Click(object sender, RoutedEventArgs e)
+        private void BtnUsers_Click(object sender, RoutedEventArgs e)
         {
+            MainFrame.Content = new UsersWpf();
+        }
 
+        private void BtnFoods_Click(object sender, RoutedEventArgs e)
+        {
+            MainFrame.Content = new FoodsWpf();
         }
     }
 }
