@@ -16,6 +16,11 @@ const Main = () => {
     const toggleFaq = (index) => {
         setActiveFaq(activeFaq === index ? null : index);
     };
+    useEffect(() => {
+  if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+  }
+}, []);
 
     const faqData = [
         { q: "How does calorie calculation work?", a: "We use the Mifflin-St Jeor equation to calculate your Basal Metabolic Rate (BMR) based on your data." },

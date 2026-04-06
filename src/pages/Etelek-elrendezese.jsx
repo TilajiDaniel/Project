@@ -167,12 +167,12 @@ const EtelkElrendezese = () => {
 
           <div className="actions">
             <button 
-              className="primary-btn"
-              onClick={() => window.location.href = '/naplo'}
-              disabled={loading}
-            >
-               Back
-            </button>
+  className="primary-btn"
+  onClick={() => navigate('/naplo')}
+  disabled={loading}
+>
+  Back
+</button>
           </div>
         </div>
       </div>

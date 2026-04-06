@@ -30,6 +30,44 @@
     opacity: 0.9; 
 }
 
+body.dark-mode {
+    background-color: #121212 !important; 
+}
+
+body.dark-mode .page-content, 
+body.dark-mode .content-grid {
+    background-color: transparent !important;
+}
+
+
+body.dark-mode .main-panel-card, 
+body.dark-mode .side-card, 
+body.dark-mode .about-container,
+body.dark-mode .faq-item {
+    background-color: #ffffff !important; 
+    color: #333 !important; 
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important; 
+    border: none !important;
+}
+body.dark-mode .faq-container h3{
+   color: #ffffff !important;
+}
+
+
+body.dark-mode h1, 
+body.dark-mode .nav-brand h2  {
+    color: #ffffff !important;
+}
+body.dark-mode .nav-brand h3 {
+    color: #ffffff !important;
+}
+
+body.dark-mode .header-card p  {
+    color: #444 !important; 
+}
+body.dark-mode .header-card  h1 {
+    color: #444 !important;
+}
 
 .nav-menu {
     display: none; 

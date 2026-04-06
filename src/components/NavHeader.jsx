@@ -3,10 +3,12 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/NavHeader.css';
 
+
 export default function NavHeader() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false); 
+  const [isDark, setIsDark] = useState(document.body.classList.contains("dark-mode"));
   
   const userRole = localStorage.getItem('userRole');
 
@@ -21,6 +23,13 @@ export default function NavHeader() {
     setMobileMenuOpen(!mobileMenuOpen);
   };
 
+  const toggleDarkMode = () => {
+  const darkModeActive = document.body.classList.toggle("dark-mode");
+  setIsDark(darkModeActive);
+  // Opcionális: Mentés, hogy frissítés után is így maradjon
+  localStorage.setItem('theme', darkModeActive ? 'dark' : 'light');
+};
+
   return (
     <header className={`nav-header ${mobileMenuOpen ? 'menu-open' : ''}`}>
       <div className="nav-brand">
@@ -29,6 +38,9 @@ export default function NavHeader() {
       </div>
       
       <nav className={`nav-menu ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+        <button onClick={toggleDarkMode} className="nav-link mode-toggle">
+  {isDark ? '☀️ Light Mode' : '🌙 Dark Mode'}
+</button>
         <NavLink 
           to="/MainPage" 
           className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}

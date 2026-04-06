@@ -204,7 +204,7 @@ const Naplo = () => {
               </div>
             </div>
             <div className="main-panel">
-              <button onClick={() => window.location.href = "/etel-elrendezese"}> Daily Meals</button>
+              <button onClick={() => navigate("/etel-elrendezese")}>Daily Meals</button>
             </div>
           </div>
         </div>

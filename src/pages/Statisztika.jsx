@@ -22,7 +22,7 @@ const Statisztika = () => {
   useEffect(() => {
     fetchWeeklyStats();
   }, []);
-// Function to fetch weekly statistics from the API and format it for the charts
+
   const fetchWeeklyStats = async () => {
     try {
       const response = await fetch('https://localhost:7133/api/Registry/weekly-stats', {
@@ -62,9 +62,9 @@ const Statisztika = () => {
 
   return (
     <Layout>
-      <div style={{ width: '100%', height: 'auto', padding: '20px' }}>
-        <h2 style={{ textAlign: 'center' }}>Weekly Calorie Consumption</h2>
-        <div style={{ width: '100%', height: 300, marginBottom: '40px' }}>
+      <div className="stats-container">
+        <h2 className="stats-title">Weekly Calorie Consumption</h2>
+        <div className="chart-wrapper calorie-chart">
           <ResponsiveContainer>
             <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -78,8 +78,8 @@ const Statisztika = () => {
           </ResponsiveContainer>
         </div>
         
-        <h2 style={{ textAlign: 'center' }}>Weekly Water Intake (ml)</h2>
-        <div style={{ width: '100%', height: 300 }}>
+        <h2 className="stats-title">Weekly Water Intake (ml)</h2>
+        <div className="chart-wrapper water-chart">
           <ResponsiveContainer>
             <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" />
