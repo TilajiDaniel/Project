@@ -38,6 +38,18 @@ A **NutriTrack** egy olyan alkalmazás, amely segít a felhasználóknak nyomon 
 
 ---
 
+## 👾 Bejelentkezés tesztfiókokkal
+
+### ADMIN:
+ - Name: AdminUser,
+ - Password: Admin12;
+
+### TESZT USER:
+ - Name: Teszter,
+ - Password: Teszt12;
+
+ --- 
+ 
 ## ⚙️ Telepítés és futtatás
 
 ```bash
